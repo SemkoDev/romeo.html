@@ -1,0 +1,7 @@
+.cache/
+.idea/
+dist/
+node_modules/
+*.iml
+*.log
+romeo-*.html

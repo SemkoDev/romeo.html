@@ -1,0 +1,20 @@
+.ui.header.oldPage,
+.ui.header.oldPage .sub.header {
+  color: grey;
+}
+
+.ui.header span.tags {
+  position: absolute;
+  right: 10px;
+}
+
+.ui.icon.menu .item.topMenu {
+  width: 338px;
+}
+
+.menuSubHeader {
+  width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
