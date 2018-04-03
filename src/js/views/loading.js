@@ -14,7 +14,7 @@ function LoadingView ({ jobs, isOnline, provider }) {
   } else if (jobFailed){
     info = `FAILED: ${jobFailed.opts.description}`;
   } else if (pendingJob) {
-    info = pendingJob.opts.description;
+    info = 'Syncing pages';
   } else if (jobFinished) {
     info = 'Starting Ultra-Light Ledger...'
   }
@@ -27,7 +27,7 @@ function LoadingView ({ jobs, isOnline, provider }) {
         <Header as='h2' icon inverted>
           <Icon name='spinner' loading />
           <Header.Content>
-            Loading for the first time
+            Loading CarrIOTA Romeo
             <Header.Subheader>
               {info}
             </Header.Subheader>
@@ -40,7 +40,7 @@ function LoadingView ({ jobs, isOnline, provider }) {
 
 function mapStateToProps (state) {
   return {
-    jobs: state.romeo.genericJobs,
+    jobs: state.romeo.jobs,
     provider: state.romeo.provider,
     isOnline: state.romeo.isOnline
   }

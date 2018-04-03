@@ -43,6 +43,23 @@ export function linkToCurrentPage() {
   return currentPageNumber ? `/page/${currentPageNumber}` : null;
 }
 
+export function isCurrentIndex(index) {
+  const romeo = get();
+  const currentPage = romeo.pages.getCurrent();
+  return currentPage ? currentPage.opts.index === index : false;
+}
+
+export function isPageTooBig (page) {
+  const addresses = Object.values(page.page.addresses);
+  return (
+    addresses.length > 50 ||
+    addresses
+      .map(a => Object.values(a.transactions))
+      .reduce((t, i) => t.concat(i), [])
+    .length > 300
+  )
+}
+
 const URL_MATCHES = {
   '\\/page\\/(\\d+)$': 'Page $1',
   '\\/page\\/(\\d+)/address/(.+)$': 'Address $2',

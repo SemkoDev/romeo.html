@@ -1,6 +1,7 @@
 import React from 'react'
 import romeo from 'romeo.lib'
 import { connect } from 'react-redux'
+import ReactFileReader from 'react-file-reader';
 import { Link } from 'react-router-dom'
 import { Redirect } from 'react-router-dom'
 import {
@@ -20,10 +21,13 @@ class Login extends React.Component {
     this.state = {
       username: '',
       password: '',
-      loading: false
+      loading: false,
+      file: null,
+      fileError: false
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleFiles = this.handleFiles.bind(this);
   }
 
   render () {
@@ -104,6 +108,9 @@ class Login extends React.Component {
     return (
       <Form onSubmit={this.handleSubmit} loading={loading}>
         <Form.Field>
+          {this.renderUpload()}
+        </Form.Field>
+        <Form.Field>
           <label>Username</label>
           <input type='password' name='username' onChange={this.handleChange} />
           {userLabel}
@@ -119,18 +126,57 @@ class Login extends React.Component {
     )
   }
 
+  renderUpload () {
+    const { file, fileError } = this.state;
+    const color = file ? 'green' : fileError ? 'red' : null;
+    const text = file
+      ? 'Backup uploaded!'
+      : fileError
+        ? 'Wrong format!'
+        : 'Upload backup file first (if any)';
+    return (
+      <ReactFileReader handleFiles={this.handleFiles}
+        fileTypes={[".txt"]} multipleFiles={false}>
+        <Button icon fluid color={color}>
+          <Icon name='upload'/> &nbsp;
+          {text}
+        </Button>
+      </ReactFileReader>
+    )
+  }
+
   handleChange ({ target: { name, value }}) {
     this.setState({ [name]: value })
   }
 
   handleSubmit () {
     const { login } = this.props;
-    const { username, password } = this.state;
+    const { username, password, file } = this.state;
     const u = romeo.utils.validate.isUsername(username).valid;
     const p = romeo.utils.validate.isPassword(password).valid;
     if (u && p) {
-      this.setState({ loading: true }, () => login(username, password));
+      this.setState({ loading: true }, () => login(username, password, file));
     }
+  }
+
+  handleFiles (files) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = reader.result;
+      try {
+        const json = JSON.parse(text);
+        const wrongFormat = !!json.find(j => !j.data || !j._id);
+        if (wrongFormat) {
+          this.setState({ file: null, fileError: true });
+          return;
+        }
+        this.setState({ file: text, fileError: false });
+      } catch (e) {
+        this.setState({ file: null, fileError: true });
+      }
+    };
+
+    reader.readAsText(files[0], 'utf-8');
   }
 }
 
@@ -146,8 +192,8 @@ function mapStateToProps (state) {
 
 function mapDispatchToProps (dispatch) {
   return {
-    login: (username, password) => {
-      login(username, password, (romeo) => dispatch(updateRomeo(romeo)));
+    login: (username, password, file) => {
+      login(username, password, (romeo) => dispatch(updateRomeo(romeo)), file);
     }
   }
 }

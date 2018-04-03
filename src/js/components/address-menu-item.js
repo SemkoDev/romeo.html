@@ -11,15 +11,14 @@ class AddressMenuItem extends React.Component {
   render () {
     const {
       address: { address, balance, spent, keyIndex, transactions },
+      currentPage,
       selected,
       history,
       match: { params }
     } = this.props;
     const checkedAddress = get().iota.utils.addChecksum(address);
-    const currentAddress = params && params.address;
     const pageIndex = params && params.page;
-    const current = address === currentAddress && currentAddress.slice(0, 81);
-    const selectAddress = () => history.push(current
+    const selectAddress = () => history.push(selected
       ? `/page/${pageIndex}`
       : `/page/${pageIndex}/address/${checkedAddress}`);
 
@@ -44,7 +43,7 @@ class AddressMenuItem extends React.Component {
                 : 'grey'
               : balance > 0
                 ? 'purple'
-                : 'green'}>
+                : currentPage ? 'green' : 'grey'}>
           <Icon name={
             spent
               ? balance > 0
@@ -56,7 +55,7 @@ class AddressMenuItem extends React.Component {
           <Header.Content>
             Address #{keyIndex + 1}
             {tags}
-            <Header.Subheader className='menuSubHeader'>
+            <Header.Subheader className='menuSubHeader ellipsible'>
               {checkedAddress}
             </Header.Subheader>
           </Header.Content>

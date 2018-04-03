@@ -10,3 +10,9 @@ body, html, #app {
   top: 55px;
   right: 10px;
 }
+
+.ellipsible {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

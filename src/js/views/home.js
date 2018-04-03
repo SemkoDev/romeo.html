@@ -31,8 +31,10 @@ class Home extends React.Component {
     const { showMenu } = this.state;
     const { pages } = this.props;
     const pageMenu = () => <PageMenu pages={pages} onClick={this.toggleMenu} />;
+    const romeo = get();
+    const currentPage = romeo.pages.getCurrent();
 
-    if (!pages || !pages.length) {
+    if (!currentPage || !Object.keys(currentPage.addresses).length) {
       return <Loading/>
     }
     return (

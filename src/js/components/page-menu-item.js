@@ -20,9 +20,14 @@ class PageMenuItem extends React.Component {
       !topMenu && !current && history.push(`/page/${page.index + 1}`);
       onClick();
     };
+    const balancedArchived = !isCurrent && page.balance > 0;
     const icon = jobPending || page.isSyncing
       ? <Icon name='spinner' loading />
-      : <Icon name={ isCurrent ? 'file' : 'file outline' } />;
+      : <Icon name={ isCurrent
+        ? 'file'
+        : balancedArchived
+          ? 'exclamation triangle'
+          : 'file outline' } />;
     const subtext = jobPending
       ? jobPending.opts.description
       : jobFailed
@@ -45,7 +50,8 @@ class PageMenuItem extends React.Component {
     return (
       <Menu.Item className={topMenu ? 'topMenu' : ''}
         onClick={changePage} active={current}>
-        <Header as='h4' textAlign='left' color={isCurrent ? 'purple' : 'grey'}>
+        <Header as='h4' textAlign='left'
+          color={isCurrent ? 'purple' : balancedArchived ? 'yellow' : 'grey'}>
           {icon}
           <Header.Content>
             Page #{page.index + 1}

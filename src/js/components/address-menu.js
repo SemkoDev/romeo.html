@@ -1,6 +1,6 @@
 import React from 'react'
 import { Icon, Header, Menu } from 'semantic-ui-react'
-import { get } from '../romeo'
+import { get, isCurrentIndex } from '../romeo'
 import AddressMenuItem from './address-menu-item'
 
 export default class AddressMenu extends React.Component {
@@ -13,20 +13,28 @@ export default class AddressMenu extends React.Component {
     const addresses = Object.values(page.page.addresses)
       .sort((a, b) => b.keyIndex - a.keyIndex);
     const adding = page.page.jobs.find(j => j.opts.type === 'NEW_ADDRESS' && !j.isFinished);
-
-    return (
-      <Menu vertical size='huge'>
-        <Menu.Item onClick={this.addNewAddress} disabled={!!adding}>
-          <Header as='h4' textAlign='left' color='green'>
+    const isCurrent = isCurrentIndex(page.keyIndex);
+    const addButton = (
+        <Menu.Item onClick={this.addNewAddress} disabled={!!adding && isCurrent}>
+          <Header as='h4' textAlign='left' color={isCurrent ? 'green' : 'grey'}>
             <Icon name={adding ? 'spinner' : 'asterisk'} loading={!!adding} />
             <Header.Content>
-              {adding ? 'Adding new address' : 'Add new address'}
+              {adding
+                ? 'Adding new address'
+                : isCurrent
+                  ? 'Add new address'
+                  : 'Archived page: no new addresses'}
             </Header.Content>
           </Header>
         </Menu.Item>
+      );
+
+    return (
+      <Menu vertical style={{ width: '100%' }}>
+        {addButton}
         {addresses.map(address => (
-          <AddressMenuItem address={address} key={address.address}
-           selected={selectedAddress && selectedAddress === address.address}/>
+          <AddressMenuItem address={address} key={address.address} currentPage={page.page.isCurrent}
+           selected={selectedAddress && selectedAddress.slice(0, 81) === address.address}/>
         ))}
       </Menu>
     )
@@ -34,6 +42,8 @@ export default class AddressMenu extends React.Component {
 
   addNewAddress () {
     const { page } = this.props;
+    const isCurrent = isCurrentIndex(page.keyIndex);
+    if (!isCurrent) return;
     const pageObject = get().pages.getByIndex(page.page.index).page;
     pageObject.getNewAddress();
   }

@@ -4,7 +4,7 @@ import { withRouter, Redirect } from 'react-router-dom'
 import { Menu, Icon, Header, Popup } from 'semantic-ui-react'
 import copy from 'copy-to-clipboard'
 import { version } from '../../../package'
-import {get, linkToCurrentPage, showInfo} from '../romeo'
+import {get, linkToCurrentPage, showInfo, isCurrentIndex} from '../romeo'
 import { formatIOTAAmount } from '../utils'
 import PageMenuItem from './page-menu-item'
 
@@ -97,11 +97,11 @@ class CurrentPageMenuItem extends React.Component {
         {addressButton}
         <Popup position='bottom center'
          trigger={
-           <Menu.Item onClick={() => {}}>
-             <Icon name='send' color='green' size='big'/>
+           <Menu.Item onClick={() => {}} disabled={balance < 1}>
+             <Icon name='send' color={balance > 0 ? 'green' : 'grey'} size='big'/>
            </Menu.Item>
          }
-         content='Send new transfer'
+         content={balance > 0 ? 'Send a new transfer' : 'Not enough funds to send transfers!'}
         />
       </Menu.Menu>
     )

@@ -1,3 +1,4 @@
 {
-  "presets": ["stage-3", "env", "react"]
+  "presets": ["stage-3", "env", "react"],
+  "plugins": ["transform-object-rest-spread"]
 }
