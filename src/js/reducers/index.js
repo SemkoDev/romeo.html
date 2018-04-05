@@ -1,7 +1,9 @@
-import romeo from './romeo'
+import romeo from './romeo';
+import field from './field';
 
 const reducers = {
-  romeo
+  romeo,
+  field
 };
 
-export default reducers
+export default reducers;

@@ -8,6 +8,11 @@
   min-height: 61px;
 }
 
+.ui.bottom.attached.menu.bottomMenu {
+  height: 40px;
+  min-height: 40px;
+}
+
 .pusher {
   display: flex;
   flex-direction: column;

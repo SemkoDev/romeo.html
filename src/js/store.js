@@ -1,19 +1,18 @@
-import {applyMiddleware, combineReducers, compose, createStore} from "redux";
-import {routerMiddleware, routerReducer} from "react-router-redux";
-import reducers from "./reducers";
-import { updateRomeo } from "./reducers/romeo";
-import { login } from "./romeo";
+import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
+import { routerMiddleware, routerReducer } from 'react-router-redux';
+import thunk from 'redux-thunk';
+import reducers from './reducers';
+import { updateRomeo } from './reducers/romeo';
+import { getSeason } from './reducers/field';
+import { login } from './romeo';
 
-
-const middleware = [
-  routerMiddleware(history)
-];
+const middleware = [routerMiddleware(history), thunk];
 
 const composeEnhancers =
   typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-      // Specify extension’s options like name, actionsBlacklist, actionsCreators, serialize...
-    })
+        // Specify extension’s options like name, actionsBlacklist, actionsCreators, serialize...
+      })
     : compose;
 
 const enhancer = composeEnhancers(
@@ -21,8 +20,6 @@ const enhancer = composeEnhancers(
   // other store enhancers if any
 );
 
-// Add the reducer to your store on the `router` key
-// Also apply our middleware for navigating
 const store = createStore(
   combineReducers({
     ...reducers,
@@ -30,10 +27,6 @@ const store = createStore(
   }),
   enhancer
 );
-
-// Now you can dispatch navigation actions from anywhere!
-// store.dispatch(push('/foo'))
-
-login('Maximilian', 'Mustermann999!', (romeo) => store.dispatch(updateRomeo(romeo)));
+store.dispatch(getSeason());
 
 export default store;

@@ -1,44 +1,42 @@
-import React from 'react'
-import { Route, withRouter } from 'react-router-dom'
-import { Breadcrumb } from 'semantic-ui-react'
-import { findRouteName } from '../romeo'
+import React from 'react';
+import { Route, withRouter } from 'react-router-dom';
+import { Breadcrumb } from 'semantic-ui-react';
+import { findRouteName } from '../romeo';
 
-const BreadcrumbsItem = ({ ...rest, match, history }) => {
+const BreadcrumbsItem = ({ match, history, ...rest }) => {
   const routeName = findRouteName(match.url);
   if (routeName) {
-    return (
-      match.isExact
-        ? <Breadcrumb.Section active>{routeName}</Breadcrumb.Section>
-        : (
-          <span>
-            <Breadcrumb.Section link onClick={() => history.push(match.url || '')}>
-              {routeName}
-            </Breadcrumb.Section>
-            <Breadcrumb.Divider icon='right chevron' />
-          </span>
-        )
-    )
+    return match.isExact ? (
+      <Breadcrumb.Section active>{routeName}</Breadcrumb.Section>
+    ) : (
+      <span>
+        <Breadcrumb.Section link onClick={() => history.push(match.url || '')}>
+          {routeName}
+        </Breadcrumb.Section>
+        <Breadcrumb.Divider icon="right chevron" />
+      </span>
+    );
   }
-  return null
+  return null;
 };
 
-const Breadcrumbs = ({ ...rest, location : { pathname } }) => {
+const Breadcrumbs = ({ location: { pathname }, ...rest }) => {
   const paths = [];
   pathname.split('/').reduce((prev, curr, index) => {
     paths[index] = `${prev}/${curr}`;
-    return paths[index]
+    return paths[index];
   });
   return (
     <div style={{ marginBottom: 10, height: 17 }}>
-      <Breadcrumb size='large'>
+      <Breadcrumb size="large">
         {paths.map(p => <Route path={p} key={p} component={BreadcrumbsItem} />)}
       </Breadcrumb>
     </div>
-  )
+  );
 };
 
-export default withRouter((props) => (
+export default withRouter(props => (
   <div>
-    <Route path='/:path' component={Breadcrumbs} />
+    <Route path="/:path" component={Breadcrumbs} />
   </div>
 ));
