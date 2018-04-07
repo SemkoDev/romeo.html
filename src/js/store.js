@@ -28,8 +28,5 @@ const store = createStore(
   enhancer
 );
 store.dispatch(getSeason());
-login('Maximilian', 'Mustermann999!', romeo =>
-  store.dispatch(updateRomeo(romeo))
-);
 
 export default store;
