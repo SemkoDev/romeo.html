@@ -14,6 +14,7 @@ import {
 } from 'semantic-ui-react';
 import Nav from '../components/nav';
 import { get, showInfo } from '../romeo';
+import { searchSpentAddressThunk } from '../reducers/ui';
 import { formatIOTAAmount } from '../utils';
 
 import classes from './transfer.css';
@@ -36,12 +37,13 @@ class Transfer extends React.Component {
       address: (location && location.state && location.state.address) || '',
       value: 0,
       unit: 1000000,
-      addDonation: false,
       donationAddress: this.props.donationAddress,
       donationValue: 0,
       donationUnit: 1000000,
+      tag: '',
       sending: false
     };
+    this.handleAddressChange = this.handleAddressChange.bind(this);
     this.handleChange0 = this.handleChange0.bind(this);
     this.sendTransfer = this.sendTransfer.bind(this);
   }
@@ -109,15 +111,33 @@ class Transfer extends React.Component {
   }
 
   renderStep0() {
-    const { pageObject, romeo } = this.props;
-    const { value, address, unit } = this.state;
+    const {
+      pageObject,
+      romeo,
+      ui: {
+        searchSpentAddress,
+        searchSpentAddressError,
+        spentAddress,
+        spentAddressResult
+      }
+    } = this.props;
+    const { value, address, unit, tag } = this.state;
     const totalValue = value * unit;
     const formattedValue = formatIOTAAmount(totalValue).short;
+    const validTag = !tag.length || romeo.iota.valid.isTrytes(tag);
     let validAddress = false;
     try {
       validAddress = romeo.iota.utils.isValidChecksum(address);
     } catch (e) {
       validAddress = false;
+    }
+    let searchingSpent = false;
+    let searchingError = false;
+    let usedAddress = false;
+    if (spentAddress === address) {
+      searchingSpent = searchSpentAddress;
+      searchingError = searchSpentAddressError;
+      usedAddress = spentAddressResult && !searchingSpent;
     }
 
     const enoughBalance = totalValue <= pageObject.getBalance();
@@ -140,6 +160,53 @@ class Transfer extends React.Component {
         </Grid.Column>
       </Grid.Row>
     );
+    const spentAddressInfo = usedAddress ? (
+      <Grid.Row>
+        <Grid.Column width={12}>
+          <Message
+            error
+            icon="at"
+            header="This address should not be used!"
+            content={
+              <span>
+                The balance on this address has already been spent. Transferring
+                again to a spent address is discouraged, since it poses problems
+                for the receiving party to securely retrieve the funds you are
+                sending, leading to a potential loss of these funds.
+                <br />
+                <br />
+                Please ask the receiving party to provide you with a new,
+                unspent address!
+              </span>
+            }
+          />
+        </Grid.Column>
+      </Grid.Row>
+    ) : null;
+    const spentAddressErrorInfo = searchingError ? (
+      <Grid.Row>
+        <Grid.Column width={12}>
+          <Message
+            error
+            icon="at"
+            header="Could not determine the address state!"
+            content={
+              <span>
+                There was a problem checking, whether this address has been
+                spent from. Since sending to a spent address poses security
+                problem for the receiving party, leading to a potential loss of
+                funds, make sure this address has not been spent. Do not send
+                unless 100% sure!
+                <br />
+                <br />
+                Try refreshing the page, make sure you have internet connection
+                and try again!
+              </span>
+            }
+          />
+        </Grid.Column>
+      </Grid.Row>
+    ) : null;
     const balanceInfo =
       enoughBalance && totalValue ? null : (
         <Grid.Row>
@@ -170,12 +237,25 @@ class Transfer extends React.Component {
                   <Form.Input
                     fluid
                     label="Address"
-                    onChange={this.handleChange0}
-                    error={!validAddress}
+                    onChange={this.handleAddressChange}
+                    loading={searchingSpent}
+                    error={!validAddress || searchingError || usedAddress}
                     value={address}
                     placeholder="XYZ"
-                    width={12}
+                    width={9}
                     name="address"
+                    maxLength={90}
+                  />
+                  <Form.Input
+                    fluid
+                    label="Tag"
+                    onChange={this.handleChange0}
+                    error={!validTag}
+                    value={tag}
+                    placeholder="XYZ"
+                    width={3}
+                    name="tag"
+                    maxLength={27}
                   />
                   <Form.Input
                     fluid
@@ -216,11 +296,13 @@ class Transfer extends React.Component {
               </Header>
             </Grid.Column>
           </Grid.Row>
+          {spentAddressInfo}
           {addressInfo}
           {balanceInfo}
+          {spentAddressErrorInfo}
         </Grid>
         {this.renderDonation()}
-        {this.renderTotalStep0(validAddress)}
+        {this.renderTotalStep0(validAddress, validTag)}
       </span>
     );
   }
@@ -394,7 +476,7 @@ class Transfer extends React.Component {
     );
   }
 
-  renderTotalStep0(validAddress) {
+  renderTotalStep0(validAddress, validTag) {
     const { pageObject } = this.props;
     const { value, unit, donationValue, donationUnit } = this.state;
     const totalValue = donationValue * donationUnit + value * unit;
@@ -402,7 +484,8 @@ class Transfer extends React.Component {
     const enoughBalance = totalValue <= pageObject.getBalance();
     const color = totalValue > 0 && enoughBalance ? 'green' : 'red';
 
-    const canProceed = totalValue > 0 && enoughBalance && validAddress;
+    const canProceed =
+      totalValue > 0 && enoughBalance && validAddress && validTag;
 
     return (
       <Grid>
@@ -459,7 +542,16 @@ class Transfer extends React.Component {
     return totalValue > 0 && enoughBalance && validAddress;
   }
 
+  handleAddressChange(event, data) {
+    const { searchSpent } = this.props;
+    searchSpent(data.value);
+    this.handleChange0(event, data);
+  }
+
   handleChange0(event, { name, value }) {
+    if (name === 'address' || name === 'tag') {
+      value = value.toUpperCase();
+    }
     this.setState({ [name]: value }, () => {
       const { maxStep } = this.state;
       this.setState({
@@ -476,18 +568,24 @@ class Transfer extends React.Component {
       address,
       donationValue,
       donationUnit,
-      donationAddress
+      donationAddress,
+      tag
     } = this.state;
+    const donation = donationValue * donationUnit;
     const transfers = [
       {
         address,
+        tag,
         value: value * unit
-      },
-      {
-        address: donationAddress,
-        value: donationValue * donationUnit
       }
     ];
+
+    if (donation) {
+      transfers.push({
+        address: donationAddress,
+        value: donation
+      });
+    }
 
     this.setState({ sending: true });
     pageObject.sendTransfers(transfers, null, null, null, 70).then(() => {
@@ -514,9 +612,16 @@ function mapStateToProps(state, props) {
     romeo,
     page,
     pageObject,
+    ui: state.ui,
     donationAddress:
       state.field && state.field.season && state.field.season.address
   };
 }
 
-export default connect(mapStateToProps)(Transfer);
+function mapDispatchToProps(dispatch) {
+  return {
+    searchSpent: address => dispatch(searchSpentAddressThunk(address))
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Transfer);

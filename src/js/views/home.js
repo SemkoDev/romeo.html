@@ -272,9 +272,15 @@ class Home extends React.Component {
   _downloadTxtFile(data) {
     const element = document.createElement('a');
     const file = new Blob([data], { type: 'text/plain' });
+    element.id = 'downloadLink';
     element.href = URL.createObjectURL(file);
     element.download = `romeo.backup.txt`;
-    element.click();
+    document.body.appendChild(element);
+
+    const downloadLink = document.getElementById('downloadLink');
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+
     this.setState({ backingUp: false });
   }
 }

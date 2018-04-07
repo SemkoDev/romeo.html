@@ -1,6 +1,6 @@
 # CarrIOTA Romeo - Ultra-Light-Ledger
 
-CarrIOTA Romeo is a lightweight ledger built on top of the IOTA Tangle. 
+CarrIOTA Romeo is a lightweight ledger built on top of the IOTA Tangle.
 It compiles to a single HTML file, including all images, fonts,
 stylesheets and scripts, which is used as an interface for the end user.
 
@@ -28,6 +28,7 @@ yarn
 # Build:
 yarn run pack
 ```
+
 This will create a file called romeo-X.X.X.html in the root folder
 of the project.
 
@@ -56,4 +57,3 @@ YHZIJOENEFSDMZGZA9WOGFTRXOFPVFFCDEYEFHPUGKEUAOTTMVLPSSNZNHRJD99WAVESLFPSGLMTUEIB
 ## License
 
 This project is licensed under the ICS License - see the [LICENSE.md](LICENSE.md) file for details.
-

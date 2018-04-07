@@ -138,7 +138,7 @@ class CurrentPageMenuItem extends React.Component {
   }
 }
 
-function copyData(data, message = 'Copied!', icon = 'check') {
+export function copyData(data, message = 'Copied!', icon = 'check') {
   copy(data);
   showInfo(
     <span>

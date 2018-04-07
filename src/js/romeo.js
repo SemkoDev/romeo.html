@@ -66,6 +66,31 @@ export function isPageTooBig(page) {
   );
 }
 
+export function wasSpent(address) {
+  const romeo = get();
+  return new Promise(resolve => {
+    let resolved = false;
+    romeo.iota.api.ext.getSpent(
+      [address],
+      (e, r) => {
+        if (!!(r && r[0])) {
+          resolved = true;
+          resolve(true);
+        }
+      },
+      (e, r) => {
+        if (resolved) {
+          return;
+        }
+        if (e) {
+          throw e;
+        }
+        resolve(!!(r && r[0]));
+      }
+    );
+  });
+}
+
 const URL_MATCHES = {
   '\\/page\\/(\\d+)$': 'Page $1',
   '\\/page\\/(\\d+)/transfer': 'Send a new transfer',
