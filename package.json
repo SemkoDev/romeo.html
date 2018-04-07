@@ -1,6 +1,6 @@
 {
   "name": "romeo.html",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Lightweight Ledger built on top of IOTA",
   "main": "index.js",
   "author": "Roman Semko",
@@ -34,6 +34,7 @@
     "copy-to-clipboard": "^3.0.8",
     "history": "^4.7.2",
     "pretty-ms": "^3.1.0",
+    "qrcode.react": "^0.8.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-file-reader": "^1.1.4",
@@ -43,6 +44,7 @@
     "react-toastify": "^3.4.3",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
+    "romeo.lib": "0.1.1",
     "semantic-ui-css": "^2.3.1",
     "semantic-ui-react": "^0.79.0"
   }
