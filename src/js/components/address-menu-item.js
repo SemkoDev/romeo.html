@@ -88,7 +88,7 @@ class AddressMenuItem extends React.Component {
           position="left center"
           trigger={
             <div className="qrcode" onClick={copyAddress}>
-              <QRCode value={address} size={256} />
+              <QRCode value={romeo.iota.utils.addChecksum(address)} size={256} />
             </div>
           }
           content="Click to copy the address!"

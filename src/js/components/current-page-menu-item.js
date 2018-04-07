@@ -32,7 +32,7 @@ class CurrentPageMenuItem extends React.Component {
     const copyAddress = () =>
       copyData(
         romeo.iota.utils.addChecksum(currentAddress.address),
-        'Current address copied!',
+        'Latest address copied!',
         'at'
       );
 
@@ -44,7 +44,7 @@ class CurrentPageMenuItem extends React.Component {
             <Icon name="at" color="pink" size="big" />
           </Menu.Item>
         }
-        content="Copy current address to clipboard."
+        content="Copy latest address to clipboard."
       />
     ) : null;
 
@@ -118,17 +118,17 @@ class CurrentPageMenuItem extends React.Component {
               onClick={() => {
                 history.push(`/page/${currentIndex + 1}/transfer`);
               }}
-              disabled={balance < 1}
+              disabled={balance < 0}
             >
               <Icon
                 name="send"
-                color={balance > 0 ? 'green' : 'grey'}
+                color={balance >= 0 ? 'green' : 'grey'}
                 size="big"
               />
             </Menu.Item>
           }
           content={
-            balance > 0
+            balance >= 0
               ? 'Send a new transfer'
               : 'Not enough funds to send transfers!'
           }
