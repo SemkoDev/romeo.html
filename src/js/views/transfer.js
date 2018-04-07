@@ -141,7 +141,7 @@ class Transfer extends React.Component {
     }
 
     const enoughBalance = totalValue <= pageObject.getBalance();
-    const color = totalValue > 0 && enoughBalance ? 'green' : 'red';
+    const color = totalValue >= 0 && enoughBalance ? 'green' : 'red';
     const addressInfo = validAddress ? null : (
       <Grid.Row>
         <Grid.Column width={12}>
@@ -261,6 +261,7 @@ class Transfer extends React.Component {
                     fluid
                     label="Value"
                     onChange={this.handleChange0}
+                    error={value<0}
                     value={value}
                     width={2}
                     name="value"
@@ -354,19 +355,20 @@ class Transfer extends React.Component {
       donationValue,
       donationUnit,
       address,
-      donationAddress
+      donationAddress,
+      tag
     } = this.state;
     const totalTransfer = value * unit;
     const totalDonation = donationValue * donationUnit;
 
     const transferInfo =
-      totalTransfer > 0 ? (
+      totalTransfer >= 0 ? (
         <Message
           info
           icon="send"
           header={`You are transferring ${
             formatIOTAAmount(totalTransfer).short
-          } (${totalTransfer}) IOTAs`}
+          } (${totalTransfer}) IOTAs tagged "${tag}"`}
           content={`To: ${address}`}
         />
       ) : null;
@@ -482,10 +484,10 @@ class Transfer extends React.Component {
     const totalValue = donationValue * donationUnit + value * unit;
     const formattedValue = formatIOTAAmount(totalValue).short;
     const enoughBalance = totalValue <= pageObject.getBalance();
-    const color = totalValue > 0 && enoughBalance ? 'green' : 'red';
+    const color = totalValue >= 0 && enoughBalance ? 'green' : 'red';
 
     const canProceed =
-      totalValue > 0 && enoughBalance && validAddress && validTag;
+      totalValue >= 0 && enoughBalance && validAddress && validTag;
 
     return (
       <Grid>
@@ -551,6 +553,11 @@ class Transfer extends React.Component {
   handleChange0(event, { name, value }) {
     if (name === 'address' || name === 'tag') {
       value = value.toUpperCase();
+    }
+    if  (name === 'value') {
+      value = !isNaN(parseFloat(value)) && isFinite(value)
+        ? value
+        : '';
     }
     this.setState({ [name]: value }, () => {
       const { maxStep } = this.state;
