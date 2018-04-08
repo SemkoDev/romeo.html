@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Switch } from 'react-router';
 import { withRouter, Redirect } from 'react-router-dom';
-import { Menu, Icon, Header, Popup } from 'semantic-ui-react';
+import { Menu, Icon, Header, Popup, Responsive } from 'semantic-ui-react';
 import copy from 'copy-to-clipboard';
 import { version } from '../../../package';
 import { get, linkToCurrentPage, showInfo } from '../romeo';
@@ -10,7 +10,7 @@ import PageMenuItem from './page-menu-item';
 
 class CurrentPageMenuItem extends React.Component {
   render() {
-    const { pages, match: { params }, onClick, history } = this.props;
+    const { pages, match: { params }, onClick, history, mobile } = this.props;
     const currentIndex = parseInt((params && params.page) || 0) - 1;
     const romeo = get();
 
@@ -35,15 +35,90 @@ class CurrentPageMenuItem extends React.Component {
         'Latest address copied!',
         'at'
       );
+    const closeOnMobileClick = (f) => {
+      if (mobile) onClick();
+      f();
+    }
+
+    const addressItem = currentAddress ? (
+      <Menu.Item onClick={() => closeOnMobileClick(copyAddress)} key='address'>
+        <Icon name="at" color="pink" size="big" />
+        { mobile ? 'Copy latest addr' : ''}
+      </Menu.Item>
+    ) : null;
+    const refreshItem = (
+      <Menu.Item onClick={() => closeOnMobileClick(sync)} key='refresh'>
+        <Icon
+          name="refresh"
+          color={isSyncing ? 'green' : 'yellow'}
+          size="big"
+          loading={isSyncing}
+        />
+        { mobile ? 'Sync page' : ''}
+      </Menu.Item>
+    );
+    const balanceItem = (
+      <Menu.Item
+        key='balance'
+        onClick={() => closeOnMobileClick(() =>
+          copyData(balance, 'Current balance copied!', 'balance'))
+        }
+      >
+        {
+          mobile
+            ? ([
+                <Icon key='a' name="balance" color="violet" />,
+                <span key='b'>
+                  Balance: {formatIOTAAmount(balance).short}
+                </span>
+              ])
+            : (
+              <Header as="h3" color="violet">
+                <Icon name="balance" />
+                <Header.Content>
+                  {formatIOTAAmount(balance).short}
+                </Header.Content>
+              </Header>
+            )
+        }
+      </Menu.Item>
+    );
+    const seedItem = (
+      <Menu.Item
+        key='seed'
+        onClick={() => closeOnMobileClick(() =>
+          copyData(page.page.seed, 'Current seed copied!', 'key'))
+        }
+      >
+        <Icon name="key" color="grey" size="big" />
+        { mobile ? 'Copy page seed' : ''}
+      </Menu.Item>
+    );
+    const transferItem = (
+      <Menu.Item
+        key='transfer'
+        onClick={() => closeOnMobileClick(() => {
+          history.push(`/page/${currentIndex + 1}/transfer`);
+        })}
+        disabled={balance < 0}
+      >
+        <Icon
+          name="send"
+          color={balance >= 0 ? 'green' : 'grey'}
+          size="big"
+        />
+        { mobile ? 'Send transfer' : ''}
+      </Menu.Item>
+    );
+
+    if (mobile) {
+      return [ refreshItem, balanceItem, seedItem, addressItem, transferItem ];
+    }
 
     const addressButton = currentAddress ? (
-      <Popup
+      <Responsive as={Popup} minWidth={600}
         position="bottom center"
-        trigger={
-          <Menu.Item onClick={copyAddress}>
-            <Icon name="at" color="pink" size="big" />
-          </Menu.Item>
-        }
+        trigger={addressItem}
         content="Copy latest address to clipboard."
       />
     ) : null;
@@ -60,49 +135,19 @@ class CurrentPageMenuItem extends React.Component {
     return (
       <Menu.Menu position="left">
         <PageMenuItem page={page} topMenu onClick={onClick} />
-        <Popup
+        <Responsive as={Popup} minWidth={425}
           position="bottom center"
-          trigger={
-            <Menu.Item onClick={sync}>
-              <Icon
-                name="refresh"
-                color={isSyncing ? 'green' : 'yellow'}
-                size="big"
-                loading={isSyncing}
-              />
-            </Menu.Item>
-          }
+          trigger={refreshItem}
           content={popupContent}
         />
-        <Popup
+        <Responsive as={Popup} minWidth={755}
           position="bottom center"
-          trigger={
-            <Menu.Item
-              onClick={() =>
-                copyData(balance, 'Current balance copied!', 'balance')
-              }
-            >
-              <Header as="h3" color="violet">
-                <Icon name="balance" />
-                <Header.Content>
-                  {formatIOTAAmount(balance).short}
-                </Header.Content>
-              </Header>
-            </Menu.Item>
-          }
+          trigger={balanceItem}
           content="Current page balance. Click to copy."
         />
-        <Popup
+        <Responsive as={Popup} minWidth={665}
           position="bottom center"
-          trigger={
-            <Menu.Item
-              onClick={() =>
-                copyData(page.page.seed, 'Current seed copied!', 'key')
-              }
-            >
-              <Icon name="key" color="grey" size="big" />
-            </Menu.Item>
-          }
+          trigger={seedItem}
           content={
             <span>
               Copy page seed to clipboard. <br />
@@ -111,22 +156,9 @@ class CurrentPageMenuItem extends React.Component {
           }
         />
         {addressButton}
-        <Popup
+        <Responsive as={Popup} minWidth={535}
           position="bottom center"
-          trigger={
-            <Menu.Item
-              onClick={() => {
-                history.push(`/page/${currentIndex + 1}/transfer`);
-              }}
-              disabled={balance < 0}
-            >
-              <Icon
-                name="send"
-                color={balance >= 0 ? 'green' : 'grey'}
-                size="big"
-              />
-            </Menu.Item>
-          }
+          trigger={transferItem}
           content={
             balance >= 0
               ? 'Send a new transfer'

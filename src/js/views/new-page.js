@@ -26,7 +26,7 @@ class NewPage extends React.Component {
       <span>
         <Grid>
           <Grid.Row>
-            <Grid.Column width={12}>
+            <Grid.Column computer={12} tablet={16}>
               <Header as="h2">Add a new page</Header>
               <Segment basic style={{ padding: 0 }} loading={adding}>
                 <Message

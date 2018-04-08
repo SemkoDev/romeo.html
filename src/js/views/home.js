@@ -11,7 +11,8 @@ import {
   Header,
   Popup,
   Modal,
-  Button
+  Button,
+  Responsive
 } from 'semantic-ui-react';
 import { version } from '../../../package';
 import { terminateRomeo } from '../reducers/romeo';
@@ -34,9 +35,11 @@ class Home extends React.Component {
     super(props);
     this.state = {
       showMenu: false,
+      showMobileMenu: false,
       backingUp: false
     };
     this.toggleMenu = this.toggleMenu.bind(this);
+    this.toggleMobileMenu = this.toggleMobileMenu.bind(this);
     this.backupLedger = this.backupLedger.bind(this);
     this._downloadTxtFile = this._downloadTxtFile.bind(this);
   }
@@ -69,6 +72,7 @@ class Home extends React.Component {
             <Route component={pageMenu} />
           </Switch>
         </Sidebar>
+        {this.renderMobileMenu()}
         <Sidebar.Pusher className="pusher">
           {this.renderTopMenu()}
           <Segment basic className="mainContent">
@@ -88,30 +92,28 @@ class Home extends React.Component {
   }
 
   renderTopMenu() {
-    const { showMenu, backingUp } = this.state;
+    const { showMenu, showMobileMenu, backingUp } = this.state;
     const { pages } = this.props;
     const romeo = get();
-
-    if (!pages || !pages.length) {
-      return <div>loading...</div>;
-    }
+    const pageMenuItem = () => (
+      <Menu.Item onClick={this.toggleMenu}>
+        <Icon
+          color="grey"
+          name={showMenu ? 'folder open' : 'folder'}
+          size="big"
+        />
+      </Menu.Item>
+    );
 
     return (
       <Menu attached="top" icon className="mainMenu">
-        <Popup
+        <Responsive as={Popup} minWidth={950}
           position="bottom center"
-          trigger={
-            <Menu.Item onClick={this.toggleMenu}>
-              <Icon
-                color="grey"
-                name={showMenu ? 'folder open' : 'folder'}
-                size="big"
-              />
-            </Menu.Item>
-          }
+          trigger={pageMenuItem()}
           content="Show/hide pages menu"
         />
-        <Menu.Item>
+        <Responsive as={Route} maxWidth={949} path='/page/new' component={pageMenuItem} />
+        <Responsive as={Menu.Item} minWidth={1170}>
           <Header as="h4" textAlign="left" color="purple">
             <Icon name="book" />
             <Header.Content>
@@ -119,14 +121,14 @@ class Home extends React.Component {
               <Header.Subheader>CarrIOTA Romeo v.{version}</Header.Subheader>
             </Header.Content>
           </Header>
-        </Menu.Item>
+        </Responsive>
         <Route
           path="/page/:page"
           component={() => (
             <CurrentPageMenuItem pages={pages} onClick={this.toggleMenu} />
           )}
         />
-        <Menu.Menu position="right">
+        <Responsive as={Menu.Menu} minWidth={880} position="right">
           <Popup
             position="bottom center"
             trigger={
@@ -158,16 +160,60 @@ class Home extends React.Component {
             content="Save cached encrypted ledger from browser database to a file. Useful in case of a snapshot or if you want to restore the whole database in a new browser without waiting for sync."
           />
           {this.renderLogout()}
-        </Menu.Menu>
+        </Responsive>
+
+        <Responsive as={Menu.Menu} maxWidth={880} position="right">
+          <Menu.Item onClick={this.toggleMobileMenu}>
+            <Icon
+              name='bars'
+              color={showMobileMenu ? 'green' : 'grey'}
+              size='big'
+            />
+          </Menu.Item>
+        </Responsive>
       </Menu>
     );
   }
 
-  renderLogout() {
+  renderMobileMenu () {
+    const { pages } = this.props;
+    const { backingUp, showMobileMenu } = this.state;
+    return (
+      <Sidebar
+        as={Menu}
+        animation="push"
+        width="thin"
+        direction='right'
+        visible={showMobileMenu}
+        icon="labeled"
+        vertical
+      >
+        <Route
+          path="/page/:page"
+          component={() => (
+            <CurrentPageMenuItem pages={pages} onClick={this.toggleMobileMenu} mobile />
+          )}
+        />
+        <Menu.Item onClick={this.backupLedger}>
+          <Icon
+            name={backingUp ? 'spinner' : 'save'}
+            color="violet"
+            size="big"
+            loading={backingUp}
+          />
+          Save Backup
+        </Menu.Item>
+        {this.renderLogout(true)}
+      </Sidebar>
+    )
+  }
+
+  renderLogout(withText = false) {
     const { backingUp } = this.state;
     const trigger = (
       <Menu.Item>
         <Icon name="power" color="red" size="big" />
+        {withText ? 'Logout' : ''}
       </Menu.Item>
     );
     return (
@@ -221,7 +267,16 @@ class Home extends React.Component {
 
     return (
       <Menu attached="bottom" className="bottomMenu">
-        <Menu.Item>
+        <Responsive as={Menu.Item} maxWidth={1169}>
+          <Header as="h4" textAlign="left" color="purple">
+            <Icon name="book" />
+            <Header.Content>
+              ULL
+              <Header.Subheader>Romeo v.{version}</Header.Subheader>
+            </Header.Content>
+          </Header>
+        </Responsive>
+        <Responsive as={Menu.Item} minWidth={580}>
           Crafted with &nbsp;<Icon
             name="heart"
             color="red"
@@ -231,8 +286,8 @@ class Home extends React.Component {
           <a href="https://twitter.com/RomanSemko" target="_blank">
             SemkoDev
           </a>
-        </Menu.Item>
-        <Menu.Item
+        </Responsive>
+        <Responsive as={Menu.Item} minWidth={660}
           onClick={() =>
             this.props.history.push({
               pathname: `${linkToCurrentPage()}/transfer`,
@@ -241,7 +296,7 @@ class Home extends React.Component {
           }
         >
           Donate
-        </Menu.Item>
+        </Responsive>
         <Menu.Menu position="right">
           <Popup
             position="top center"
@@ -260,6 +315,11 @@ class Home extends React.Component {
   toggleMenu() {
     const { showMenu } = this.state;
     this.setState({ showMenu: !showMenu });
+  }
+
+  toggleMobileMenu() {
+    const { showMobileMenu } = this.state;
+    this.setState({ showMobileMenu: !showMobileMenu });
   }
 
   backupLedger() {

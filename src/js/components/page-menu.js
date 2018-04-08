@@ -28,7 +28,7 @@ class PageMenu extends React.Component {
 
     return (
       <div>
-        <Menu.Item onClick={() => history.push('/page/new')}>
+        <Menu.Item onClick={() => { history.push('/page/new'); onClick() }}>
           <Header as="h4" textAlign="left" color="green">
             <Icon name="asterisk" />
             <Header.Content>

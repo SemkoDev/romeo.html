@@ -68,45 +68,51 @@ class Transfer extends React.Component {
       this.setState({ currentStep: index });
     };
     return (
-      <Step.Group>
-        <Step
-          active={currentStep === 0}
-          disabled={sending || maxStep < 0}
-          completed={maxStep > 0}
-          onClick={() => selectStep(0)}
-        >
-          <Icon name="send" />
-          <Step.Content>
-            <Step.Title>Destination</Step.Title>
-            <Step.Description>Address and value</Step.Description>
-          </Step.Content>
-        </Step>
+      <Grid>
+        <Grid.Row>
+          <Grid.Column computer={8} tablet={16} mobile={16}>
+            <Step.Group fluid>
+              <Step
+                active={currentStep === 0}
+                disabled={sending || maxStep < 0}
+                completed={maxStep > 0}
+                onClick={() => selectStep(0)}
+              >
+                <Icon name="send" />
+                <Step.Content>
+                  <Step.Title>Destination</Step.Title>
+                  <Step.Description>Address and value</Step.Description>
+                </Step.Content>
+              </Step>
 
-        <Step
-          active={currentStep === 1}
-          disabled={sending || maxStep < 1}
-          completed={maxStep > 1}
-          onClick={() => selectStep(1)}
-        >
-          <Icon name="payment" />
-          <Step.Content>
-            <Step.Title>Source</Step.Title>
-            <Step.Description>Page addresses to use</Step.Description>
-          </Step.Content>
-        </Step>
+              <Step
+                active={currentStep === 1}
+                disabled={sending || maxStep < 1}
+                completed={maxStep > 1}
+                onClick={() => selectStep(1)}
+              >
+                <Icon name="payment" />
+                <Step.Content>
+                  <Step.Title>Source</Step.Title>
+                  <Step.Description>Page addresses to use</Step.Description>
+                </Step.Content>
+              </Step>
 
-        <Step
-          active={currentStep === 2}
-          disabled={sending || maxStep < 2}
-          completed={maxStep > 2}
-          onClick={() => selectStep(2)}
-        >
-          <Icon name="info" />
-          <Step.Content>
-            <Step.Title>Confirm transfer</Step.Title>
-          </Step.Content>
-        </Step>
-      </Step.Group>
+              <Step
+                active={currentStep === 2}
+                disabled={sending || maxStep < 2}
+                completed={maxStep > 2}
+                onClick={() => selectStep(2)}
+              >
+                <Icon name="info" />
+                <Step.Content>
+                  <Step.Title>Confirm transfer</Step.Title>
+                </Step.Content>
+              </Step>
+            </Step.Group>
+          </Grid.Column>
+        </Grid.Row>
+      </Grid>
     );
   }
 
@@ -144,7 +150,7 @@ class Transfer extends React.Component {
     const color = totalValue >= 0 && enoughBalance ? 'green' : 'red';
     const addressInfo = validAddress ? null : (
       <Grid.Row>
-        <Grid.Column width={12}>
+        <Grid.Column computer={12} tablet={16} mobile={16}>
           <Message
             info
             icon="at"
@@ -162,7 +168,7 @@ class Transfer extends React.Component {
     );
     const spentAddressInfo = usedAddress ? (
       <Grid.Row>
-        <Grid.Column width={12}>
+        <Grid.Column computer={12} tablet={16} mobile={16}>
           <Message
             error
             icon="at"
@@ -185,7 +191,7 @@ class Transfer extends React.Component {
     ) : null;
     const spentAddressErrorInfo = searchingError ? (
       <Grid.Row>
-        <Grid.Column width={12}>
+        <Grid.Column computer={12} tablet={16} mobile={16}>
           <Message
             error
             icon="at"
@@ -208,16 +214,16 @@ class Transfer extends React.Component {
       </Grid.Row>
     ) : null;
     const balanceInfo =
-      enoughBalance && totalValue ? null : (
+      enoughBalance && totalValue >= 0 ? null : (
         <Grid.Row>
-          <Grid.Column width={12}>
+          <Grid.Column computer={12} tablet={16} mobile={16}>
             <Message
               info
               icon="balance"
               header="How many IOTAs do you want to send?"
               content={
                 <span>
-                  Negative and zero-value transactions are not allowed. Also,
+                  Negative-value transactions are not allowed. Also,
                   make sure that your page balance is enough to make that
                   transfer.
                 </span>
@@ -291,7 +297,7 @@ class Transfer extends React.Component {
                   {formattedValue}
                   <Header.Subheader>
                     {!enoughBalance && 'Not enough balance!'}
-                    {totalValue < 1 && 'Input a positive value!'}
+                    {totalValue < 0 && 'Input a positive value!'}
                   </Header.Subheader>
                 </Header.Content>
               </Header>
@@ -312,7 +318,7 @@ class Transfer extends React.Component {
     return (
       <Grid>
         <Grid.Row>
-          <Grid.Column width={12}>
+          <Grid.Column computer={12} tablet={16} mobile={16}>
             <Message
               info
               icon="at"
@@ -328,7 +334,7 @@ class Transfer extends React.Component {
           </Grid.Column>
         </Grid.Row>
         <Grid.Row>
-          <Grid.Column width={12} textAlign="right">
+          <Grid.Column computer={12} tablet={16} mobile={16} textAlign="right">
             <Divider />
             <Button
               color="olive"
@@ -366,9 +372,10 @@ class Transfer extends React.Component {
         <Message
           info
           icon="send"
+          className='dont-break-out'
           header={`You are transferring ${
             formatIOTAAmount(totalTransfer).short
-          } (${totalTransfer}) IOTAs tagged "${tag}"`}
+          } (${totalTransfer}) IOTAs ${ tag && tag.length ? `tagged "${tag}"` : ''}`}
           content={`To: ${address}`}
         />
       ) : null;
@@ -378,6 +385,7 @@ class Transfer extends React.Component {
         <Message
           success
           icon="heart"
+          className='dont-break-out'
           header={`You are donating ${
             formatIOTAAmount(totalDonation).short
           } (${totalDonation}) IOTAs`}
@@ -387,13 +395,13 @@ class Transfer extends React.Component {
     return (
       <Grid>
         <Grid.Row>
-          <Grid.Column width={12}>
+          <Grid.Column computer={12} tablet={16} mobile={16}>
             {transferInfo}
             {donationInfo}
           </Grid.Column>
         </Grid.Row>
         <Grid.Row>
-          <Grid.Column width={12} textAlign="right">
+          <Grid.Column computer={12} tablet={16} mobile={16} textAlign="right">
             <Divider />
             <Button color="olive" size="large" onClick={this.sendTransfer}>
               <Icon name="send" /> &nbsp; Send transfer(s)
@@ -520,7 +528,6 @@ class Transfer extends React.Component {
                 {formattedValue}
                 <Header.Subheader>
                   {!enoughBalance && 'Not enough balance!'}
-                  {totalValue < 1 && 'Zero transfers not allowed!'}
                 </Header.Subheader>
               </Header.Content>
             </Header>
