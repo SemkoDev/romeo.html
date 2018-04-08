@@ -269,7 +269,7 @@ class Home extends React.Component {
     return (
       <Menu attached="bottom" className="bottomMenu">
         <Responsive as={Menu.Item} maxWidth={1169}>
-          <Header as="h4" textAlign="left" color="purple">
+          <Header as="h4" textAlign="left" color="purple" className='romeoLogoContainer'>
             <div className='romeoLogo' />
             <Header.Content>
               ULL

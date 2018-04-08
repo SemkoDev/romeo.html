@@ -46,3 +46,9 @@ html,
   background: url(../img/logo.png) no-repeat center center;
   background-size: 45px auto;
 }
+
+.romeoLogoContainer .content {
+  position: relative;
+  top: 5px;
+  left: 5px;
+}
