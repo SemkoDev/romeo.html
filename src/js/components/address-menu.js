@@ -35,11 +35,13 @@ export default class AddressMenu extends React.Component {
     return (
       <Menu vertical style={{ width: '100%' }}>
         {addButton}
-        {addresses.map(address => (
+        {addresses.map((address, i) => (
           <AddressMenuItem
             address={address}
             key={address.address}
             currentPage={page.page.isCurrent}
+            anySelected={!!selectedAddress}
+            latestAddress={i===0}
             selected={
               selectedAddress &&
               selectedAddress.slice(0, 81) === address.address

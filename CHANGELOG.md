@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- Improved address menu to hide QR code on old/used addresses.
+- Improved address menu descriptions/tooltips.
+
 ## [0.1.3] - 2018-04-07
 
 ### Added
