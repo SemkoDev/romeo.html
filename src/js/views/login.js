@@ -12,7 +12,8 @@ import {
   Header,
   Icon,
   Transition,
-  Menu
+  Menu,
+  Responsive
 } from 'semantic-ui-react';
 import { version } from '../../../package';
 import { updateRomeo } from '../reducers/romeo';
@@ -53,10 +54,10 @@ class Login extends React.Component {
         <Container className="loginContainer">
           <Transition transitionOnMount animation="fade up">
             <Grid divided>
-              <Grid.Row columns={4} centered stretched>
-                <Grid.Column mobile={4} stretched>
-                  <Header as="h2" icon color="purple">
-                    <Icon name="book" />
+              <Grid.Row centered stretched>
+                <Grid.Column largeScreen={4} computer={6} tablet={8} mobile={16} stretched>
+                  <Header as="h2" color="purple" textAlign='center'>
+                    <div className='romeoLogo' /><br/>
                     CarrIOTA Romeo
                     <Header.Subheader>
                       Ultra-Light Ledger v.{version}
@@ -64,11 +65,11 @@ class Login extends React.Component {
                   </Header>
                 </Grid.Column>
               </Grid.Row>
-              <Grid.Row columns={4} centered stretched>
-                <Grid.Column mobile={4} stretched>
+              <Grid.Row centered stretched>
+                <Grid.Column largeScreen={4} computer={6} tablet={8} mobile={16} stretched>
                   {this.renderForm()}
                 </Grid.Column>
-                <Grid.Column mobile={4} stretched>
+                <Grid.Column largeScreen={4} computer={6} tablet={8} mobile={16} stretched>
                   <p>
                     Please enter your username and password. If no ledgers exist
                     with the given credentials, a new one will be generated.
@@ -179,10 +180,10 @@ class Login extends React.Component {
             SemkoDev
           </a>
         </Menu.Item>
-        <Menu.Item>
+        <Responsive as={Menu.Item} minWidth={620}>
           <Icon name="paw" color="grey" /> No animals have been harmed when
           crafting this software
-        </Menu.Item>
+        </Responsive>
       </Menu>
     );
   }

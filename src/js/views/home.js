@@ -8,6 +8,7 @@ import {
   Menu,
   Segment,
   Icon,
+  Image,
   Header,
   Popup,
   Modal,
@@ -115,7 +116,7 @@ class Home extends React.Component {
         <Responsive as={Route} maxWidth={949} path='/page/new' component={pageMenuItem} />
         <Responsive as={Menu.Item} minWidth={1170}>
           <Header as="h4" textAlign="left" color="purple">
-            <Icon name="book" />
+            <Image size='small' src={require('../../img/logo.png')} />
             <Header.Content>
               Ultra-Light Ledger
               <Header.Subheader>CarrIOTA Romeo v.{version}</Header.Subheader>
@@ -269,7 +270,7 @@ class Home extends React.Component {
       <Menu attached="bottom" className="bottomMenu">
         <Responsive as={Menu.Item} maxWidth={1169}>
           <Header as="h4" textAlign="left" color="purple">
-            <Icon name="book" />
+            <div className='romeoLogo' />
             <Header.Content>
               ULL
               <Header.Subheader>Romeo v.{version}</Header.Subheader>

@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Added
-- Basic responsiveness.
+- Responsive, mobile support.
+- Mobile App icons and colors.
+- FavIcon
 
 ### Changed
 - Improved address menu to hide QR code on old/used addresses.

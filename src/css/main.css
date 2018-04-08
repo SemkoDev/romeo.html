@@ -38,3 +38,11 @@ html,
   hyphens: auto;
 
 }
+
+.romeoLogo {
+  display: inline-block;
+  width: 45px;
+  height: 45px;
+  background: url(../img/logo.png) no-repeat center center;
+  background-size: 45px auto;
+}
