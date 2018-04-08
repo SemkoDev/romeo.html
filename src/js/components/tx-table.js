@@ -6,7 +6,9 @@ import {
   Button,
   Table,
   Label,
-  Checkbox
+  Checkbox,
+  Responsive,
+  Divider
 } from 'semantic-ui-react';
 import { formatIOTAAmount } from '../utils';
 
@@ -29,10 +31,13 @@ class TXTable extends React.Component {
     ).filter(t => !hideZero || t.value !== 0);
 
     return (
-      <Table celled stackable>
+      <Table striped stackable compact fixed attached='top'>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell width={9}>Transaction</Table.HeaderCell>
+            <Table.HeaderCell width={8}>Transaction</Table.HeaderCell>
+            <Responsive as={Table.HeaderCell} width={5} maxWidth={767}>
+              Tag
+            </Responsive>
             <Table.HeaderCell width={4}>View</Table.HeaderCell>
             <Table.HeaderCell textAlign="right" width={3}>
               <Checkbox
@@ -62,6 +67,38 @@ class TXTable extends React.Component {
     );
     const color = tx.value > 0 ? 'green' : tx.value < 0 ? 'red' : 'grey';
 
+    const buttons = (mini) => (
+      <Button.Group fluid>
+        <Button
+          Button    icon
+          size="tiny"
+          onClick={() =>
+            window.open(
+              `https://thetangle.org/transaction/${tx.hash}`,
+              '_blank'
+            )
+          }
+        >
+          { mini
+            ? <span><Icon name="external" /> &nbsp; TN</span>
+            : <span><Icon name="external" /> &nbsp; Transaction</span>
+          }
+        </Button>
+        <Button
+          icon
+          size="tiny"
+          onClick={() =>
+            window.open(`https://thetangle.org/bundle/${tx.bundle}`, '_blank')
+          }
+        >
+          { mini
+            ? <span><Icon name="external" /> &nbsp; BN</span>
+            : <span><Icon name="external" /> &nbsp; Bundle</span>
+          }
+        </Button>
+      </Button.Group>
+    );
+
     return (
       <Table.Row
         key={tx.hash}
@@ -69,42 +106,43 @@ class TXTable extends React.Component {
         positive={tx.value > 0}
         warning={!confirmed}
       >
-        <Table.Cell className="ellipsible" width={9}>
+        <Table.Cell className="ellipsible" width={8}>
           <Header as="h4" textAlign="left">
             {icon}
             <Header.Content>
               {new Date(tx.timestamp * 1000).toLocaleString()}
-              <Label>
+              <Responsive as={Label} minWidth={1201}>
                 <Icon name="tag" />
                 {tx.tag}
-              </Label>
+              </Responsive>
+              <Responsive as={Label} minWidth={830} maxWidth={960}>
+                <Icon name="tag" />
+                {tx.tag}
+              </Responsive>
             </Header.Content>
           </Header>
         </Table.Cell>
-        <Table.Cell width={4}>
-          <Button
-            icon
-            size="tiny"
-            onClick={() =>
-              window.open(
-                `https://thetangle.org/transaction/${tx.hash}`,
-                '_blank'
-              )
-            }
-          >
-            <Icon name="external" /> &nbsp; Transaction
-          </Button>
-          <Button
-            icon
-            size="tiny"
-            onClick={() =>
-              window.open(`https://thetangle.org/bundle/${tx.bundle}`, '_blank')
-            }
-          >
-            <Icon name="external" /> &nbsp; Bundle
-          </Button>
+        <Responsive as={Table.Cell} maxWidth={767} width={4}>
+          <Label>
+            <Icon name="tag" />
+            {tx.tag}
+          </Label>
+        </Responsive>
+        <Table.Cell width={5}>
+          <Responsive maxWidth={767}>
+            {buttons(false)}
+          </Responsive>
+          <Responsive minWidth={768} maxWidth={1200}>
+            {buttons(true)}
+          </Responsive>
+          <Responsive minWidth={1201}>
+            {buttons(false)}
+          </Responsive>
         </Table.Cell>
         <Table.Cell textAlign="right" width={3}>
+          <Responsive maxWidth={767}>
+            <Divider/>
+          </Responsive>
           <Header as="h2" textAlign="right" color={color}>
             {formatIOTAAmount(tx.value).short}
           </Header>

@@ -35,9 +35,9 @@ export function showInfo(message) {
   toast(message, {
     type: toast.TYPE.INFO,
     className: {
-      //opacity: '0.7',
-      top: '52px',
-      right: '-10px'
+      opacity: '0.7',
+      top: '60px',
+      //right: '-10px'
     },
     autoClose: 3000
   });
