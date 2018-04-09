@@ -41,11 +41,11 @@ class TransferRow extends React.Component {
     this.onChange = this.onChange.bind(this);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.checkAddress(this.props.address);
   }
 
-  render () {
+  render() {
     const { disableAddress, onRemove } = this.props;
     const {
       value,
@@ -59,9 +59,13 @@ class TransferRow extends React.Component {
     const totalValue = value * unit;
     const validValue = this.validValue();
     const formattedValue = formatIOTAAmount(totalValue).short;
-    const addressAction = onRemove
-      ? <Button icon onClick={onRemove}><Icon name='minus'/></Button>
-      : false;
+    const addressAction = onRemove ? (
+      <Button icon onClick={onRemove}>
+        <Icon name="minus" />
+      </Button>
+    ) : (
+      false
+    );
 
     const addressInput = (
       <Form.Input
@@ -88,18 +92,18 @@ class TransferRow extends React.Component {
         addressElement = (
           <Popup
             trigger={addressInput}
-            position='top left'
-            content='This address has been spent from. Please ask the receiving party another address!'
+            position="top left"
+            content="This address has been spent from. Please ask the receiving party another address!"
           />
-        )
+        );
       } else if (addressSearchError) {
         addressElement = (
           <Popup
             trigger={addressInput}
-            position='top left'
-            content='We could not determine whether this address has been spent from. Use at your own risk!'
+            position="top left"
+            content="We could not determine whether this address has been spent from. Use at your own risk!"
           />
-        )
+        );
       }
     }
 
@@ -159,61 +163,62 @@ class TransferRow extends React.Component {
           </Header>
         </Grid.Column>
       </Grid.Row>
-    )
+    );
   }
 
-  validTag () {
+  validTag() {
     const { tag } = this.state;
     return !tag.length || this.romeo.iota.valid.isTrytes(tag);
   }
 
-  validAddress () {
+  validAddress() {
     const {
       address,
       searchingAddress,
       validAddress,
       addressSearchInProgress
     } = this.state;
-    return address === searchingAddress && validAddress && !addressSearchInProgress;
+    return (
+      address === searchingAddress && validAddress && !addressSearchInProgress
+    );
   }
 
-  validValue () {
+  validValue() {
     const { value } = this.state;
     return !isNaN(parseFloat(value)) && isFinite(value) && value >= 0;
   }
 
-  validInputs () {
+  validInputs() {
     return this.validTag() && this.validAddress() && this.validValue();
   }
 
-  async handleChange (event, { name, value }) {
+  async handleChange(event, { name, value }) {
     if (name === 'address' || name === 'tag') {
       value = value.toUpperCase();
     }
     if (name === 'address') {
-      this.checkAddress(value).then((valid) => valid && this.onChange());
+      this.checkAddress(value).then(valid => valid && this.onChange());
     }
-    if  (name === 'value') {
-      value = !isNaN(parseFloat(value)) && isFinite(value)
-        ? value
-        : '';
+    if (name === 'value') {
+      value = !isNaN(parseFloat(value)) && isFinite(value) ? value : '';
     }
     this.setState({ [name]: value }, this.onChange);
   }
 
-  onChange () {
+  onChange() {
     const { onChange, identifier } = this.props;
-    const {value: v, address, unit, tag } = this.state;
-    onChange && onChange({
-      identifier,
-      value: v * unit,
-      address,
-      tag,
-      valid: this.validInputs()
-    })
+    const { value: v, address, unit, tag } = this.state;
+    onChange &&
+      onChange({
+        identifier,
+        value: v * unit,
+        address,
+        tag,
+        valid: this.validInputs()
+      });
   }
 
-  checkAddress (address) {
+  checkAddress(address) {
     return new Promise(resolve => {
       const { searchingAddress } = this.state;
       if (address === searchingAddress) {
@@ -226,44 +231,56 @@ class TransferRow extends React.Component {
         valid = this.romeo.iota.utils.isValidChecksum(address);
       } catch (e) {}
       if (!valid) {
-        this.setState({
-          searchingAddress: address,
-          validAddress: false,
-          addressSearchError: false
-        }, () => resolve(false));
+        this.setState(
+          {
+            searchingAddress: address,
+            validAddress: false,
+            addressSearchError: false
+          },
+          () => resolve(false)
+        );
         return;
       }
-      this.setState({
-        addressSearchInProgress: true,
-        addressSearchError: false,
-        searchingAddress: address
-      }, () => {
-        wasSpent(address)
-          .then(spent => {
-            const { searchingAddress } = this.state;
-            if (searchingAddress !== address){
-              resolve(false);
-              return;
-            }
-            this.setState({
-              addressSearchInProgress: false,
-              validAddress: !spent
-            }, () => resolve(!spent));
-          })
-          .catch(() => {
-            const { searchingAddress } = this.state;
-            if (searchingAddress !== address) {
-              resolve(false);
-              return;
-            }
-            this.setState({
-              addressSearchInProgress: false,
-              validAddress: true,
-              addressSearchError: true
-            }, () => resolve(false));
-          })
-      });
-    })
+      this.setState(
+        {
+          addressSearchInProgress: true,
+          addressSearchError: false,
+          searchingAddress: address
+        },
+        () => {
+          wasSpent(address)
+            .then(spent => {
+              const { searchingAddress } = this.state;
+              if (searchingAddress !== address) {
+                resolve(false);
+                return;
+              }
+              this.setState(
+                {
+                  addressSearchInProgress: false,
+                  validAddress: !spent
+                },
+                () => resolve(!spent)
+              );
+            })
+            .catch(() => {
+              const { searchingAddress } = this.state;
+              if (searchingAddress !== address) {
+                resolve(false);
+                return;
+              }
+              this.setState(
+                {
+                  addressSearchInProgress: false,
+                  validAddress: true,
+                  addressSearchError: true
+                },
+                () => resolve(false)
+              );
+            });
+        }
+      );
+    });
   }
 }
 

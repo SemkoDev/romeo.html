@@ -16,7 +16,7 @@ import {
   Checkbox,
   Popup
 } from 'semantic-ui-react';
-import romeo from 'romeo.lib'
+import romeo from 'romeo.lib';
 import Nav from '../components/nav';
 import { get, showInfo } from '../romeo';
 import { searchSpentAddressThunk } from '../reducers/ui';
@@ -70,21 +70,22 @@ class Transfer extends React.Component {
     this.romeo = get();
   }
 
-  componentWillMount () {
+  componentWillMount() {
     this.setObjects(this.props.currentIndex);
   }
 
-  componentWillReceiveProps (props) {
+  componentWillReceiveProps(props) {
     const { currentIndex } = props;
     if (currentIndex !== this.props.currentIndex) {
       this.setObjects(currentIndex);
     }
   }
 
-  setObjects (currentIndex) {
+  setObjects(currentIndex) {
     this.pageObject = this.romeo.pages.getByIndex(currentIndex).page;
     this.setState({
-      inputs: this.pageObject.getInputs(true)
+      inputs: this.pageObject
+        .getInputs(true)
         .filter(i => i.balance > 0)
         .map(i => ({
           address: i.address,
@@ -169,18 +170,16 @@ class Transfer extends React.Component {
   renderStep0() {
     const { transfers } = this.state;
     const canAddTransfer = transfers.length < MAX_TXS;
-    const addButton = canAddTransfer
-      ? (
-        <Grid.Row>
-          <Grid.Column mobile={12} computer={4} tablet={6}>
-            <Button onClick={this.addTransfer} fluid color='purple'>
-              <Icon name='plus'/>
-              Add another transfer
-            </Button>
-          </Grid.Column>
-        </Grid.Row>
-      )
-      : null;
+    const addButton = canAddTransfer ? (
+      <Grid.Row>
+        <Grid.Column mobile={12} computer={4} tablet={6}>
+          <Button onClick={this.addTransfer} fluid color="purple">
+            <Icon name="plus" />
+            Add another transfer
+          </Button>
+        </Grid.Column>
+      </Grid.Row>
+    ) : null;
 
     return (
       <span>
@@ -192,8 +191,11 @@ class Transfer extends React.Component {
               address={t.address}
               tag={t.tag}
               value={t.value}
-              onChange={(value) => this.handleChange0(i, value)}
-              onRemove={transfers.length > 1 ? () => this.removeTransfer(i) : false}/>
+              onChange={value => this.handleChange0(i, value)}
+              onRemove={
+                transfers.length > 1 ? () => this.removeTransfer(i) : false
+              }
+            />
           ))}
           {addButton}
         </Grid>
@@ -205,10 +207,9 @@ class Transfer extends React.Component {
 
   renderStep1() {
     const { transfers, donation } = this.state;
-    const totalValue = donation.value + transfers.reduce((s, t) => s + t.value, 0);
-    let content = totalValue < 1
-      ? this.renderNoInput1()
-      : this.renderInput1();
+    const totalValue =
+      donation.value + transfers.reduce((s, t) => s + t.value, 0);
+    let content = totalValue < 1 ? this.renderNoInput1() : this.renderInput1();
 
     return (
       <Grid>
@@ -236,38 +237,36 @@ class Transfer extends React.Component {
 
   renderStep2() {
     const { transfers, donation } = this.state;
-    const totalValue = donation.value + transfers.reduce((s, t) => s + t.value, 0);
-    const donationRow = donation.value > 0
-      ? (
+    const totalValue =
+      donation.value + transfers.reduce((s, t) => s + t.value, 0);
+    const donationRow =
+      donation.value > 0 ? (
         <Table.Row positive>
-          <Table.Cell className='dont-break-out'>
-            <Label ribbon color='purple'>
-              <Icon name='heart'/> Donation
+          <Table.Cell className="dont-break-out">
+            <Label ribbon color="purple">
+              <Icon name="heart" /> Donation
             </Label>
             {donation.address}
           </Table.Cell>
-          <Table.Cell className='dont-break-out'>
+          <Table.Cell className="dont-break-out">
             <Label>
               <Icon name="tag" />
               {donation.tag.padEnd(27, '9')}
             </Label>
           </Table.Cell>
-          <Table.Cell textAlign='right'>
+          <Table.Cell textAlign="right">
             <Responsive maxWidth={767}>
-              <Divider/>
+              <Divider />
             </Responsive>
-            <Header as="h2" textAlign="right" color='green'>
+            <Header as="h2" textAlign="right" color="green">
               <Header.Content>
                 {formatIOTAAmount(donation.value).short}
-                <Header.Subheader>
-                  {donation.value}
-                </Header.Subheader>
+                <Header.Subheader>{donation.value}</Header.Subheader>
               </Header.Content>
             </Header>
           </Table.Cell>
         </Table.Row>
-        )
-      : null;
+      ) : null;
 
     return (
       <Grid>
@@ -276,39 +275,31 @@ class Transfer extends React.Component {
             <Table striped stackable compact fixed>
               <Table.Header>
                 <Table.Row>
-                  <Table.HeaderCell width={7}>
-                    Address
-                  </Table.HeaderCell>
-                  <Table.HeaderCell width={6}>
-                    Tag
-                  </Table.HeaderCell>
-                  <Table.HeaderCell width={3}>
-                    Value
-                  </Table.HeaderCell>
+                  <Table.HeaderCell width={7}>Address</Table.HeaderCell>
+                  <Table.HeaderCell width={6}>Tag</Table.HeaderCell>
+                  <Table.HeaderCell width={3}>Value</Table.HeaderCell>
                 </Table.Row>
               </Table.Header>
               <Table.Body>
                 {transfers.map(t => (
                   <Table.Row key={t.identifier}>
-                    <Table.Cell className='dont-break-out'>
+                    <Table.Cell className="dont-break-out">
                       {t.address}
                     </Table.Cell>
-                    <Table.Cell className='dont-break-out'>
+                    <Table.Cell className="dont-break-out">
                       <Label>
                         <Icon name="tag" />
                         {t.tag.padEnd(27, '9')}
                       </Label>
                     </Table.Cell>
-                    <Table.Cell textAlign='right'>
+                    <Table.Cell textAlign="right">
                       <Responsive maxWidth={767}>
-                        <Divider/>
+                        <Divider />
                       </Responsive>
-                      <Header as="h2" textAlign="right" color='green'>
+                      <Header as="h2" textAlign="right" color="green">
                         <Header.Content>
                           {formatIOTAAmount(t.value).short}
-                          <Header.Subheader>
-                            {t.value}
-                          </Header.Subheader>
+                          <Header.Subheader>{t.value}</Header.Subheader>
                         </Header.Content>
                       </Header>
                     </Table.Cell>
@@ -317,21 +308,17 @@ class Transfer extends React.Component {
                 {donationRow}
                 <Table.Row>
                   <Table.Cell>
-                    <Header as='h4'>
-                      Total:
-                    </Header>
+                    <Header as="h4">Total:</Header>
                   </Table.Cell>
                   <Table.Cell />
-                  <Table.Cell textAlign='right'>
+                  <Table.Cell textAlign="right">
                     <Responsive maxWidth={767}>
-                      <Divider/>
+                      <Divider />
                     </Responsive>
-                    <Header as="h2" textAlign="right" color='green'>
+                    <Header as="h2" textAlign="right" color="green">
                       <Header.Content>
                         {formatIOTAAmount(totalValue).short}
-                        <Header.Subheader>
-                          {totalValue}
-                        </Header.Subheader>
+                        <Header.Subheader>{totalValue}</Header.Subheader>
                       </Header.Content>
                     </Header>
                   </Table.Cell>
@@ -367,24 +354,26 @@ class Transfer extends React.Component {
             </Header>
           </Grid.Column>
         </Grid.Row>
-        <TransferRow disableAddress
-          onChange={(value) => this.handleChange0('donation', value)}
+        <TransferRow
+          disableAddress
+          onChange={value => this.handleChange0('donation', value)}
           identifier={donation.identifier}
           address={donation.address}
           tag={donation.tag}
-          value={donation.value} />
+          value={donation.value}
+        />
       </Grid>
     );
   }
 
-  removeTransfer (position) {
+  removeTransfer(position) {
     const { transfers } = this.state;
     const newTransfers = transfers.slice();
     newTransfers.splice(position, 1);
     this.setState({ transfers: newTransfers });
   }
 
-  addTransfer () {
+  addTransfer() {
     const { transfers } = this.state;
     const newTransfers = transfers.slice();
     newTransfers.splice(transfers.length, 0, {
@@ -398,18 +387,17 @@ class Transfer extends React.Component {
   }
 
   renderTotalStep0() {
-    const {
-      page: { page: { balance: pageBalance }}
-    } =  this.props;
+    const { page: { page: { balance: pageBalance } } } = this.props;
     const { transfers, donation, inputs } = this.state;
-    const totalValue = donation.value + transfers.reduce((s, t) => s + t.value, 0);
+    const totalValue =
+      donation.value + transfers.reduce((s, t) => s + t.value, 0);
     const formattedValue = formatIOTAAmount(totalValue).short;
     const enoughBalance = totalValue <= pageBalance;
     const color = totalValue >= 0 && enoughBalance ? 'green' : 'red';
     const nextStep = totalValue > 0 ? 1 : 2;
-    const sufficient = inputs
-      .filter(i => !i.spent)
-      .reduce((t, i) => t + i.balance, 0) >= totalValue;
+    const sufficient =
+      inputs.filter(i => !i.spent).reduce((t, i) => t + i.balance, 0) >=
+      totalValue;
 
     const canProceed = enoughBalance && this.canGoToStep1();
 
@@ -454,47 +442,50 @@ class Transfer extends React.Component {
     );
   }
 
-  renderInput1 () {
+  renderInput1() {
     const { autoInput, forceInput } = this.state;
 
-    const content = autoInput && !forceInput
-      ? (
+    const content =
+      autoInput && !forceInput ? (
         <Message
           info
           icon="at"
           header="Automatic address selection enabled"
           content={
             <span>
-                  The source/input addresses to cover the total transfer value
-                  will be selected automatically.
-                </span>
+              The source/input addresses to cover the total transfer value will
+              be selected automatically.
+            </span>
           }
         />
-      )
-      : this.renderInputTable1();
+      ) : (
+        this.renderInputTable1()
+      );
 
     return [
-      <Grid.Row key='checkbox'>
+      <Grid.Row key="checkbox">
         <Grid.Column computer={12} tablet={16} mobile={16}>
           <Checkbox
             toggle
             disabled={forceInput}
             onChange={() => this.setState({ autoInput: !autoInput })}
-            label='Automatic source selection'
-            checked={autoInput || forceInput} />
+            label="Automatic source selection"
+            checked={autoInput || forceInput}
+          />
         </Grid.Column>
       </Grid.Row>,
-      <Grid.Row key='content'>
+      <Grid.Row key="content">
         <Grid.Column computer={12} tablet={16} mobile={16}>
           {content}
         </Grid.Column>
       </Grid.Row>
-    ]
+    ];
   }
 
-  renderInputTable1 () {
+  renderInputTable1() {
     const { transfers, donation, inputs } = this.state;
-    const totalValue = donation.value + transfers.reduce((s, t) => s + t.value, 0);
+    const totalValue =
+      donation.value + transfers.reduce((s, t) => s + t.value, 0);
     const selectedValue = inputs
       .filter(i => i.selected)
       .reduce((t, i) => t + i.balance, 0);
@@ -510,78 +501,82 @@ class Transfer extends React.Component {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          { inputs.map((i, x) => (
-            <Table.Row key={i.address} negative={i.selected && i.spent} positive={i.selected && !i.spent}>
+          {inputs.map((i, x) => (
+            <Table.Row
+              key={i.address}
+              negative={i.selected && i.spent}
+              positive={i.selected && !i.spent}
+            >
               <Table.Cell>
-                <Checkbox toggle onChange={() => this.handleChange1(x)} checked={i.selected}/>
+                <Checkbox
+                  toggle
+                  onChange={() => this.handleChange1(x)}
+                  checked={i.selected}
+                />
               </Table.Cell>
-              <Table.Cell className='dont-break-out'>
-                {!i.spent
-                  ? <Icon name="check" color="green" />
-                  : <Icon name="close" color="red" />}
-                {i.spent
-                  ? (
-                    <Popup
-                      trigger={<span>{i.address}</span>}
-                      position='top left'
-                      content='This address is marked as spent. If possible, do not use!'
-                    />
-                  )
-                  : i.address}
+              <Table.Cell className="dont-break-out">
+                {!i.spent ? (
+                  <Icon name="check" color="green" />
+                ) : (
+                  <Icon name="close" color="red" />
+                )}
+                {i.spent ? (
+                  <Popup
+                    trigger={<span>{i.address}</span>}
+                    position="top left"
+                    content="This address is marked as spent. If possible, do not use!"
+                  />
+                ) : (
+                  i.address
+                )}
               </Table.Cell>
-              <Table.Cell textAlign='right'>
+              <Table.Cell textAlign="right">
                 <Responsive maxWidth={767}>
-                  <Divider/>
+                  <Divider />
                 </Responsive>
-                <Header as="h2" textAlign="right" color='green'>
+                <Header as="h2" textAlign="right" color="green">
                   <Header.Content>
                     {formatIOTAAmount(i.balance).short}
-                    <Header.Subheader>
-                      {i.balance}
-                    </Header.Subheader>
+                    <Header.Subheader>{i.balance}</Header.Subheader>
                   </Header.Content>
                 </Header>
               </Table.Cell>
             </Table.Row>
           ))}
           <Table.Row active>
-            <Table.Cell/>
+            <Table.Cell />
             <Table.Cell>
-              <Header as='h4'>
-                Total needed:
-              </Header>
+              <Header as="h4">Total needed:</Header>
             </Table.Cell>
             <Table.Cell>
               <Responsive maxWidth={767}>
-                <Divider/>
+                <Divider />
               </Responsive>
-              <Header as="h2" textAlign="right" color='green'>
+              <Header as="h2" textAlign="right" color="green">
                 <Header.Content>
                   {formatIOTAAmount(totalValue).short}
-                  <Header.Subheader>
-                    {totalValue}
-                  </Header.Subheader>
+                  <Header.Subheader>{totalValue}</Header.Subheader>
                 </Header.Content>
               </Header>
             </Table.Cell>
           </Table.Row>
           <Table.Row>
-            <Table.Cell/>
+            <Table.Cell />
             <Table.Cell>
-              <Header as='h4'>
-                Pending to select:
-              </Header>
+              <Header as="h4">Pending to select:</Header>
             </Table.Cell>
             <Table.Cell>
               <Responsive maxWidth={767}>
-                <Divider/>
+                <Divider />
               </Responsive>
-              <Header as="h2" textAlign="right" color={outstanding ? 'red' : 'green'}>
+              <Header
+                as="h2"
+                textAlign="right"
+                color={outstanding ? 'red' : 'green'}
+              >
                 <Header.Content>
                   {formatIOTAAmount(outstanding).short}
-                  <Header.Subheader>
-                    {outstanding}
-                  </Header.Subheader>
+                  <Header.Subheader>{outstanding}</Header.Subheader>
                 </Header.Content>
               </Header>
             </Table.Cell>
@@ -591,7 +586,7 @@ class Transfer extends React.Component {
     );
   }
 
-  renderNoInput1 () {
+  renderNoInput1() {
     return (
       <Grid.Row>
         <Grid.Column computer={12} tablet={16} mobile={16}>
@@ -601,14 +596,14 @@ class Transfer extends React.Component {
             header="You do not need to select input addresses"
             content={
               <span>
-                Since the total value of your transactions is zero, no
-                input addresses are necessary.
+                Since the total value of your transactions is zero, no input
+                addresses are necessary.
               </span>
             }
           />
         </Grid.Column>
       </Grid.Row>
-    )
+    );
   }
 
   canGoToStep1() {
@@ -630,17 +625,17 @@ class Transfer extends React.Component {
   handleChange1(pos) {
     const { inputs } = this.state;
     const newInputs = inputs.slice();
-    newInputs[pos] = Object.assign(
-      {}, inputs[pos], {selected: !inputs[pos].selected});
+    newInputs[pos] = Object.assign({}, inputs[pos], {
+      selected: !inputs[pos].selected
+    });
     this.setState({ inputs: newInputs });
   }
 
   sendTransfer() {
     const { history } = this.props;
-    const {
-      donation, transfers, autoInput, forceInput, inputs
-    } = this.state;
-    const totalValue = donation.value + transfers.reduce((s, t) => s + t.value, 0);
+    const { donation, transfers, autoInput, forceInput, inputs } = this.state;
+    const totalValue =
+      donation.value + transfers.reduce((s, t) => s + t.value, 0);
     const txs = transfers.slice();
 
     if (donation.value && donation.valid) {
@@ -648,7 +643,7 @@ class Transfer extends React.Component {
     }
     let txInputs = inputs.filter(i => i.selected);
 
-    if (autoInput && !forceInput ) {
+    if (autoInput && !forceInput) {
       txInputs = [];
       let inputValue = 0;
       const unspent = inputs.filter(i => !i.spent);
@@ -668,7 +663,8 @@ class Transfer extends React.Component {
     }
 
     this.setState({ sending: true });
-    this.pageObject.sendTransfers(txs, txInputs, null, null, 7000)
+    this.pageObject
+      .sendTransfers(txs, txInputs, null, null, 7000)
       .then(() => {
         this.setState({ sending: false });
         history.push(`/page/${this.pageObject.opts.index + 1}`);
@@ -678,7 +674,8 @@ class Transfer extends React.Component {
           </span>
         );
         this.pageObject.sync(true, 7000);
-      }).catch((error) => {
+      })
+      .catch(error => {
         this.setState({ sending: false });
         history.push(`/page/${this.pageObject.opts.index + 1}`);
         showInfo(
@@ -689,7 +686,7 @@ class Transfer extends React.Component {
           3000,
           'error'
         );
-    });
+      });
   }
 }
 

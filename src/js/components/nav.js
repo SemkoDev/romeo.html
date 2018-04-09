@@ -28,7 +28,7 @@ const Breadcrumbs = ({ location: { pathname }, ...rest }) => {
   });
   return (
     <div style={{ marginBottom: 10, height: 17 }}>
-      <Breadcrumb size="large" className='ellipsible' style={{ width: '100%' }}>
+      <Breadcrumb size="large" className="ellipsible" style={{ width: '100%' }}>
         {paths.map(p => <Route path={p} key={p} component={BreadcrumbsItem} />)}
       </Breadcrumb>
     </div>

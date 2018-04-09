@@ -57,10 +57,11 @@ class AddressMenuItem extends React.Component {
       rawBalance > 0 ? (
         <span>
           <Header as="h5" color={currentPage ? 'green' : 'yellow'}>
-            { currentPage ? 'Usable!' : 'Archived page address'}
+            {currentPage ? 'Usable!' : 'Archived page address'}
           </Header>
           Address has positive balance, but has not been spent.&nbsp;
-          {!currentPage && 'You should transfer these funds to the current page!'}
+          {!currentPage &&
+            'You should transfer these funds to the current page!'}
         </span>
       ) : (
         <span>
@@ -74,7 +75,7 @@ class AddressMenuItem extends React.Component {
     ) : (
       <span>
         <Header as="h5" color={currentPage ? 'green' : 'yellow'}>
-          { currentPage ? 'Usable!' : 'Archived page address'}
+          {currentPage ? 'Usable!' : 'Archived page address'}
         </Header>
         Empty address with no balance.&nbsp;
         {!currentPage && 'However, this page is archived. So do not use!'}
@@ -90,12 +91,17 @@ class AddressMenuItem extends React.Component {
       </span>
     );
     const qrcode =
-      (selected || (!anySelected && latestAddress)) && (!spent || spa) && currentPage ? (
+      (selected || (!anySelected && latestAddress)) &&
+      (!spent || spa) &&
+      currentPage ? (
         <Popup
           position="left center"
           trigger={
             <div className="qrcode" onClick={copyAddress}>
-              <QRCode value={romeo.iota.utils.addChecksum(address)} size={256} />
+              <QRCode
+                value={romeo.iota.utils.addChecksum(address)}
+                size={256}
+              />
             </div>
           }
           content="Click to copy the address!"
@@ -143,5 +149,3 @@ class AddressMenuItem extends React.Component {
 }
 
 export default withRouter(AddressMenuItem);
-
-

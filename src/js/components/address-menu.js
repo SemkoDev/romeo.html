@@ -42,7 +42,7 @@ class AddressMenu extends React.Component {
             key={address.address}
             currentPage={page.page.isCurrent}
             anySelected={!!selectedAddress}
-            latestAddress={i===0}
+            latestAddress={i === 0}
             selected={
               selectedAddress &&
               selectedAddress.slice(0, 81) === address.address
@@ -62,4 +62,4 @@ class AddressMenu extends React.Component {
   }
 }
 
-export default deepHoc(AddressMenu)
+export default deepHoc(AddressMenu);

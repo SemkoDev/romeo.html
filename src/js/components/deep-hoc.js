@@ -1,10 +1,10 @@
 import React from 'react';
 import deepEqual from 'fast-deep-equal';
 
-export default function (WrappedComponent) {
+export default function(WrappedComponent) {
   return class extends React.Component {
     shouldComponentUpdate(nextProps) {
-      const props = {...nextProps};
+      const props = { ...nextProps };
       if (!props.children || !props.children.length) {
         delete props.children;
       }
@@ -15,5 +15,5 @@ export default function (WrappedComponent) {
     render() {
       return <WrappedComponent {...this.props} />;
     }
-  }
+  };
 }

@@ -16,7 +16,7 @@ class Page extends React.Component {
     super(props);
     this.state = {
       showAddresses: false
-    }
+    };
   }
   render() {
     const { page, address, addressObject } = this.props;
@@ -51,33 +51,31 @@ class Page extends React.Component {
           <Grid.Row>
             <Grid.Column mobile={16}>
               <Button.Group fluid>
-              <Button
-                active={!showAddresses}
-                onClick={() => this.setState({ showAddresses: false})}>
-                Transactions
-              </Button>
-              <Button
-                active={showAddresses}
-                onClick={() => this.setState({ showAddresses: true})}>
-                Addresses
-              </Button>
-            </Button.Group>
+                <Button
+                  active={!showAddresses}
+                  onClick={() => this.setState({ showAddresses: false })}
+                >
+                  Transactions
+                </Button>
+                <Button
+                  active={showAddresses}
+                  onClick={() => this.setState({ showAddresses: true })}
+                >
+                  Addresses
+                </Button>
+              </Button.Group>
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            {
-              !showAddresses
-              ? (
-                <Grid.Column mobile={16}>
-                  <TXTable address={addressObject} page={page} />
-                </Grid.Column>
-                )
-              : (
-                <Grid.Column mobile={16}>
-                  <AddressMenu page={page} selectedAddress={address} />
-                </Grid.Column>
-                )
-            }
+            {!showAddresses ? (
+              <Grid.Column mobile={16}>
+                <TXTable address={addressObject} page={page} />
+              </Grid.Column>
+            ) : (
+              <Grid.Column mobile={16}>
+                <AddressMenu page={page} selectedAddress={address} />
+              </Grid.Column>
+            )}
           </Grid.Row>
         </Responsive>
       </span>

@@ -31,19 +31,18 @@ export function get() {
   return romeoInstance;
 }
 
-export function showInfo(message, time=3000, typeStr = 'info') {
-  const type = typeStr === 'warning'
-    ? toast.TYPE.WARNING
-    : typeStr === 'error'
-      ? toast.TYPE.ERROR
-      : typeStr === 'success'
-        ? toast.TYPE.SUCCESS
-        : toast.TYPE.INFO;
+export function showInfo(message, time = 3000, typeStr = 'info') {
+  const type =
+    typeStr === 'warning'
+      ? toast.TYPE.WARNING
+      : typeStr === 'error'
+        ? toast.TYPE.ERROR
+        : typeStr === 'success' ? toast.TYPE.SUCCESS : toast.TYPE.INFO;
   toast(message, {
     type,
     className: {
       //opacity: '0.7',
-      top: '60px',
+      top: '60px'
       //right: '-10px'
     },
     autoClose: time

@@ -54,9 +54,16 @@ class Login extends React.Component {
           <Transition transitionOnMount animation="fade up">
             <Grid divided>
               <Grid.Row centered stretched>
-                <Grid.Column largeScreen={4} computer={6} tablet={8} mobile={16} stretched>
-                  <Header as="h2" color="purple" textAlign='center'>
-                    <div className='romeoLogo' /><br/>
+                <Grid.Column
+                  largeScreen={4}
+                  computer={6}
+                  tablet={8}
+                  mobile={16}
+                  stretched
+                >
+                  <Header as="h2" color="purple" textAlign="center">
+                    <div className="romeoLogo" />
+                    <br />
                     CarrIOTA Romeo
                     <Header.Subheader>
                       Ultra-Light Ledger v.{version}
@@ -65,10 +72,22 @@ class Login extends React.Component {
                 </Grid.Column>
               </Grid.Row>
               <Grid.Row centered stretched>
-                <Grid.Column largeScreen={4} computer={6} tablet={8} mobile={16} stretched>
+                <Grid.Column
+                  largeScreen={4}
+                  computer={6}
+                  tablet={8}
+                  mobile={16}
+                  stretched
+                >
                   {this.renderForm()}
                 </Grid.Column>
-                <Grid.Column largeScreen={4} computer={6} tablet={8} mobile={16} stretched>
+                <Grid.Column
+                  largeScreen={4}
+                  computer={6}
+                  tablet={8}
+                  mobile={16}
+                  stretched
+                >
                   <p>
                     Please enter your username and password. If no ledgers exist
                     with the given credentials, a new one will be generated.

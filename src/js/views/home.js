@@ -108,15 +108,27 @@ class Home extends React.Component {
 
     return (
       <Menu attached="top" icon className="mainMenu">
-        <Responsive as={Popup} minWidth={950}
+        <Responsive
+          as={Popup}
+          minWidth={950}
           position="bottom center"
           trigger={pageMenuItem()}
           content="Show/hide pages menu"
         />
-        <Responsive as={Route} maxWidth={949} path='/page/new' component={pageMenuItem} />
+        <Responsive
+          as={Route}
+          maxWidth={949}
+          path="/page/new"
+          component={pageMenuItem}
+        />
         <Responsive as={Menu.Item} minWidth={1170}>
-          <Header as="h4" textAlign="left" color="purple" className='romeoLogoContainer'>
-            <div className='romeoLogo' />
+          <Header
+            as="h4"
+            textAlign="left"
+            color="purple"
+            className="romeoLogoContainer"
+          >
+            <div className="romeoLogo" />
             <Header.Content>
               Ultra-Light Ledger
               <Header.Subheader>CarrIOTA Romeo v.{version}</Header.Subheader>
@@ -166,9 +178,9 @@ class Home extends React.Component {
         <Responsive as={Menu.Menu} maxWidth={880} position="right">
           <Menu.Item onClick={this.toggleMobileMenu}>
             <Icon
-              name='bars'
+              name="bars"
               color={showMobileMenu ? 'green' : 'grey'}
-              size='big'
+              size="big"
             />
           </Menu.Item>
         </Responsive>
@@ -176,7 +188,7 @@ class Home extends React.Component {
     );
   }
 
-  renderMobileMenu () {
+  renderMobileMenu() {
     const { pages } = this.props;
     const { backingUp, showMobileMenu } = this.state;
     return (
@@ -184,7 +196,7 @@ class Home extends React.Component {
         as={Menu}
         animation="push"
         width="thin"
-        direction='right'
+        direction="right"
         visible={showMobileMenu}
         icon="labeled"
         vertical
@@ -192,7 +204,11 @@ class Home extends React.Component {
         <Route
           path="/page/:page"
           component={() => (
-            <CurrentPageMenuItem pages={pages} onClick={this.toggleMobileMenu} mobile />
+            <CurrentPageMenuItem
+              pages={pages}
+              onClick={this.toggleMobileMenu}
+              mobile
+            />
           )}
         />
         <Menu.Item onClick={this.backupLedger}>
@@ -206,7 +222,7 @@ class Home extends React.Component {
         </Menu.Item>
         {this.renderLogout(true)}
       </Sidebar>
-    )
+    );
   }
 
   renderLogout(withText = false) {
@@ -269,8 +285,13 @@ class Home extends React.Component {
     return (
       <Menu attached="bottom" className="bottomMenu">
         <Responsive as={Menu.Item} maxWidth={1169}>
-          <Header as="h4" textAlign="left" color="purple" className='romeoLogoContainer'>
-            <div className='romeoLogo' />
+          <Header
+            as="h4"
+            textAlign="left"
+            color="purple"
+            className="romeoLogoContainer"
+          >
+            <div className="romeoLogo" />
             <Header.Content>
               ULL
               <Header.Subheader>Romeo v.{version}</Header.Subheader>
@@ -288,7 +309,9 @@ class Home extends React.Component {
             SemkoDev
           </a>
         </Responsive>
-        <Responsive as={Menu.Item} minWidth={660}
+        <Responsive
+          as={Menu.Item}
+          minWidth={660}
           onClick={() =>
             this.props.history.push({
               pathname: `${linkToCurrentPage()}/transfer`,

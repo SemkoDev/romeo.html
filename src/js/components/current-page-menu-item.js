@@ -36,88 +36,86 @@ class CurrentPageMenuItem extends React.Component {
         'Latest address copied!',
         'at'
       );
-    const closeOnMobileClick = (f) => {
+    const closeOnMobileClick = f => {
       if (mobile) onClick();
       f();
     };
 
     const addressItem = currentAddress ? (
-      <Menu.Item onClick={() => closeOnMobileClick(copyAddress)} key='address'>
+      <Menu.Item onClick={() => closeOnMobileClick(copyAddress)} key="address">
         <Icon name="at" color="pink" size="big" />
-        { mobile ? 'Copy latest addr' : ''}
+        {mobile ? 'Copy latest addr' : ''}
       </Menu.Item>
     ) : null;
     const refreshItem = (
-      <Menu.Item onClick={() => closeOnMobileClick(sync)} key='refresh'>
+      <Menu.Item onClick={() => closeOnMobileClick(sync)} key="refresh">
         <Icon
           name="refresh"
           color={isSyncing ? 'green' : 'yellow'}
           size="big"
           loading={isSyncing}
         />
-        { mobile ? 'Sync page' : ''}
+        {mobile ? 'Sync page' : ''}
       </Menu.Item>
     );
     const balanceItem = (
       <Menu.Item
-        key='balance'
-        onClick={() => closeOnMobileClick(() =>
-          copyData(balance, 'Current balance copied!', 'balance'))
+        key="balance"
+        onClick={() =>
+          closeOnMobileClick(() =>
+            copyData(balance, 'Current balance copied!', 'balance')
+          )
         }
       >
-        {
-          mobile
-            ? ([
-                <Icon key='a' name="balance" color="violet" />,
-                <span key='b'>
-                  Balance: {formatIOTAAmount(balance).short}
-                </span>
-              ])
-            : (
-              <Header as="h3" color="violet">
-                <Icon name="balance" />
-                <Header.Content>
-                  {formatIOTAAmount(balance).short}
-                </Header.Content>
-              </Header>
-            )
-        }
+        {mobile ? (
+          [
+            <Icon key="a" name="balance" color="violet" />,
+            <span key="b">Balance: {formatIOTAAmount(balance).short}</span>
+          ]
+        ) : (
+          <Header as="h3" color="violet">
+            <Icon name="balance" />
+            <Header.Content>{formatIOTAAmount(balance).short}</Header.Content>
+          </Header>
+        )}
       </Menu.Item>
     );
     const seedItem = (
       <Menu.Item
-        key='seed'
-        onClick={() => closeOnMobileClick(() =>
-          copyData(page.page.seed, 'Current seed copied!', 'key'))
+        key="seed"
+        onClick={() =>
+          closeOnMobileClick(() =>
+            copyData(page.page.seed, 'Current seed copied!', 'key')
+          )
         }
       >
         <Icon name="key" color="grey" size="big" />
-        { mobile ? 'Copy page seed' : ''}
+        {mobile ? 'Copy page seed' : ''}
       </Menu.Item>
     );
     const transferItem = (
       <Menu.Item
-        key='transfer'
-        onClick={() => closeOnMobileClick(() => {
-          history.push(`/page/${currentIndex + 1}/transfer`);
-        })}
+        key="transfer"
+        onClick={() =>
+          closeOnMobileClick(() => {
+            history.push(`/page/${currentIndex + 1}/transfer`);
+          })
+        }
         disabled={balance < 0}
       >
-        <Icon
-          name="send"
-          color={balance >= 0 ? 'green' : 'grey'}
-          size="big"
-        />
-        { mobile ? 'Send transfer' : ''}
+        <Icon name="send" color={balance >= 0 ? 'green' : 'grey'} size="big" />
+        {mobile ? 'Send transfer' : ''}
       </Menu.Item>
     );
 
     if (mobile) {
-      return [ refreshItem, balanceItem, seedItem, addressItem, transferItem ];
+      return [refreshItem, balanceItem, seedItem, addressItem, transferItem];
     }
 
     const addressButton = currentAddress ? (
-      <Responsive as={Popup} minWidth={600}
+      <Responsive
+        as={Popup}
+        minWidth={600}
         position="bottom center"
         trigger={addressItem}
         content="Copy latest address to clipboard."
@@ -136,17 +134,23 @@ class CurrentPageMenuItem extends React.Component {
     return (
       <Menu.Menu position="left">
         <PageMenuItem page={page} topMenu onClick={onClick} />
-        <Responsive as={Popup} minWidth={425}
+        <Responsive
+          as={Popup}
+          minWidth={425}
           position="bottom center"
           trigger={refreshItem}
           content={popupContent}
         />
-        <Responsive as={Popup} minWidth={755}
+        <Responsive
+          as={Popup}
+          minWidth={755}
           position="bottom center"
           trigger={balanceItem}
           content="Current page balance. Click to copy."
         />
-        <Responsive as={Popup} minWidth={665}
+        <Responsive
+          as={Popup}
+          minWidth={665}
           position="bottom center"
           trigger={seedItem}
           content={
@@ -157,7 +161,9 @@ class CurrentPageMenuItem extends React.Component {
           }
         />
         {addressButton}
-        <Responsive as={Popup} minWidth={535}
+        <Responsive
+          as={Popup}
+          minWidth={535}
           position="bottom center"
           trigger={transferItem}
           content={

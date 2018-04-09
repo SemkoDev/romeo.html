@@ -68,7 +68,7 @@ class TXTable extends React.Component {
     );
     const color = tx.value > 0 ? 'green' : tx.value < 0 ? 'red' : 'grey';
 
-    const buttons = (mini) => (
+    const buttons = mini => (
       <Button.Group fluid>
         <Button
           icon
@@ -80,10 +80,15 @@ class TXTable extends React.Component {
             )
           }
         >
-          { mini
-            ? <span><Icon name="external" /> &nbsp; TN</span>
-            : <span><Icon name="external" /> &nbsp; Transaction</span>
-          }
+          {mini ? (
+            <span>
+              <Icon name="external" /> &nbsp; TN
+            </span>
+          ) : (
+            <span>
+              <Icon name="external" /> &nbsp; Transaction
+            </span>
+          )}
         </Button>
         <Button
           icon
@@ -92,10 +97,15 @@ class TXTable extends React.Component {
             window.open(`https://thetangle.org/bundle/${tx.bundle}`, '_blank')
           }
         >
-          { mini
-            ? <span><Icon name="external" /> &nbsp; BN</span>
-            : <span><Icon name="external" /> &nbsp; Bundle</span>
-          }
+          {mini ? (
+            <span>
+              <Icon name="external" /> &nbsp; BN
+            </span>
+          ) : (
+            <span>
+              <Icon name="external" /> &nbsp; Bundle
+            </span>
+          )}
         </Button>
       </Button.Group>
     );
@@ -130,19 +140,15 @@ class TXTable extends React.Component {
           </Label>
         </Responsive>
         <Table.Cell width={5}>
-          <Responsive maxWidth={767}>
-            {buttons(false)}
-          </Responsive>
+          <Responsive maxWidth={767}>{buttons(false)}</Responsive>
           <Responsive minWidth={768} maxWidth={1200}>
             {buttons(true)}
           </Responsive>
-          <Responsive minWidth={1201}>
-            {buttons(false)}
-          </Responsive>
+          <Responsive minWidth={1201}>{buttons(false)}</Responsive>
         </Table.Cell>
         <Table.Cell textAlign="right" width={3}>
           <Responsive maxWidth={767}>
-            <Divider/>
+            <Divider />
           </Responsive>
           <Header as="h2" textAlign="right" color={color}>
             {formatIOTAAmount(tx.value).short}

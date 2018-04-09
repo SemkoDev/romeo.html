@@ -9,7 +9,7 @@ import {
   Icon
 } from 'semantic-ui-react';
 import { get, linkToCurrentPage, showInfo } from '../romeo';
-import deepHoc from "../components/deep-hoc";
+import deepHoc from '../components/deep-hoc';
 
 class NewPage extends React.Component {
   constructor(props) {
@@ -85,13 +85,14 @@ class NewPage extends React.Component {
     showInfo(
       <span>
         <Icon name="clock" />
-        New page is being added!
-        Please wait for the setup to complete.
-        It can take up to a few minutes. You can continue
-        using Romeo, but please do not close it.
-        You will get another notification, once the setup is complete.
+        New page is being added! Please wait for the setup to complete. It can
+        take up to a few minutes. You can continue using Romeo, but please do
+        not close it. You will get another notification, once the setup is
+        complete.
       </span>,
-      12000, 'warning');
+      12000,
+      'warning'
+    );
     romeo.newPage().then(() => {
       history.push(linkToCurrentPage());
       showInfo(
@@ -100,9 +101,8 @@ class NewPage extends React.Component {
         </span>,
         6000,
         'success'
-        )
-      }
-    );
+      );
+    });
   }
 }
 
