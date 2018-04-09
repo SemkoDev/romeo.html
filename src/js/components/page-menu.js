@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { Icon, Header, Button, Menu } from 'semantic-ui-react';
 import { get } from '../romeo';
 import PageMenuItem from './page-menu-item';
+import deepHoc from './deep-hoc';
 
 class PageMenu extends React.Component {
   render() {
@@ -28,7 +29,12 @@ class PageMenu extends React.Component {
 
     return (
       <div>
-        <Menu.Item onClick={() => history.push('/page/new')}>
+        <Menu.Item
+          onClick={() => {
+            history.push('/page/new');
+            onClick();
+          }}
+        >
           <Header as="h4" textAlign="left" color="green">
             <Icon name="asterisk" />
             <Header.Content>
@@ -53,4 +59,4 @@ class PageMenu extends React.Component {
   }
 }
 
-export default withRouter(PageMenu);
+export default withRouter(deepHoc(PageMenu));

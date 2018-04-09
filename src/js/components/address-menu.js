@@ -2,8 +2,9 @@ import React from 'react';
 import { Icon, Header, Menu } from 'semantic-ui-react';
 import { get, isCurrentIndex } from '../romeo';
 import AddressMenuItem from './address-menu-item';
+import deepHoc from './deep-hoc';
 
-export default class AddressMenu extends React.Component {
+class AddressMenu extends React.Component {
   constructor(props) {
     super(props);
     this.addNewAddress = this.addNewAddress.bind(this);
@@ -35,11 +36,13 @@ export default class AddressMenu extends React.Component {
     return (
       <Menu vertical style={{ width: '100%' }}>
         {addButton}
-        {addresses.map(address => (
+        {addresses.map((address, i) => (
           <AddressMenuItem
             address={address}
             key={address.address}
             currentPage={page.page.isCurrent}
+            anySelected={!!selectedAddress}
+            latestAddress={i === 0}
             selected={
               selectedAddress &&
               selectedAddress.slice(0, 81) === address.address
@@ -58,3 +61,5 @@ export default class AddressMenu extends React.Component {
     pageObject.getNewAddress();
   }
 }
+
+export default deepHoc(AddressMenu);

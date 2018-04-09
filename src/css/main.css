@@ -18,3 +18,39 @@ html,
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.dont-break-out {
+  /* These are technically the same, but use both */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  -ms-word-break: break-all;
+  /* This is the dangerous one in WebKit, as it breaks things wherever */
+  word-break: break-all;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
+
+  /* Adds a hyphen where the word breaks, if supported (No Blink) */
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.romeoLogo {
+  display: inline-block;
+  width: 45px;
+  height: 45px;
+  background: url(../img/logo.png) no-repeat center center;
+  background-size: 45px auto;
+}
+
+.romeoLogoContainer .content {
+  position: relative;
+  top: 4px;
+  left: 5px;
+}
+
+.romeoLogoContainer .romeoLogo {
+  background-size: 35px auto;
+}

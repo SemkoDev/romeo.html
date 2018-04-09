@@ -2,17 +2,25 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { Link, Redirect } from 'react-router-dom';
-import { Grid, Message } from 'semantic-ui-react';
+import { Grid, Message, Responsive, Button } from 'semantic-ui-react';
 import Nav from '../components/nav';
 import { get, linkToCurrentPage, isCurrentIndex, isPageTooBig } from '../romeo';
 import AddressMenu from '../components/address-menu';
 import TXTable from '../components/tx-table';
+import deepHoc from '../components/deep-hoc';
 
 import classes from './page.css';
 
 class Page extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      showAddresses: false
+    };
+  }
   render() {
     const { page, address, addressObject } = this.props;
+    const { showAddresses } = this.state;
     const invalidAddress = address && !addressObject;
 
     if (!page) {
@@ -29,16 +37,47 @@ class Page extends React.Component {
       <span>
         <Nav />
         {this.showNotifications()}
-        <Grid>
+        <Responsive as={Grid} minWidth={960}>
           <Grid.Row>
-            <Grid.Column width={12}>
+            <Grid.Column largeScreen={12} computer={11} tablet={10} mobile={16}>
               <TXTable address={addressObject} page={page} />
             </Grid.Column>
-            <Grid.Column width={4}>
+            <Grid.Column largeScreen={4} computer={5} tablet={6} mobile={16}>
               <AddressMenu page={page} selectedAddress={address} />
             </Grid.Column>
           </Grid.Row>
-        </Grid>
+        </Responsive>
+        <Responsive as={Grid} maxWidth={959}>
+          <Grid.Row>
+            <Grid.Column mobile={16}>
+              <Button.Group fluid>
+                <Button
+                  active={!showAddresses}
+                  onClick={() => this.setState({ showAddresses: false })}
+                >
+                  Transactions
+                </Button>
+                <Button
+                  active={showAddresses}
+                  onClick={() => this.setState({ showAddresses: true })}
+                >
+                  Addresses
+                </Button>
+              </Button.Group>
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            {!showAddresses ? (
+              <Grid.Column mobile={16}>
+                <TXTable address={addressObject} page={page} />
+              </Grid.Column>
+            ) : (
+              <Grid.Column mobile={16}>
+                <AddressMenu page={page} selectedAddress={address} />
+              </Grid.Column>
+            )}
+          </Grid.Row>
+        </Responsive>
       </span>
     );
   }
@@ -180,4 +219,4 @@ function mapStateToProps(state, props) {
   };
 }
 
-export default connect(mapStateToProps)(Page);
+export default connect(mapStateToProps)(deepHoc(Page));

@@ -6,6 +6,7 @@ import { Menu, Icon, Header, Label, Popup } from 'semantic-ui-react';
 import { get } from '../romeo';
 import { formatIOTAAmount } from '../utils';
 import { copyData } from './current-page-menu-item';
+import deepHoc from './deep-hoc';
 
 import classes from './page-menu-item.css';
 
@@ -16,6 +17,8 @@ class AddressMenuItem extends React.Component {
       currentPage,
       selected,
       history,
+      anySelected,
+      latestAddress,
       match: { params }
     } = this.props;
     const romeo = get();
@@ -46,31 +49,36 @@ class AddressMenuItem extends React.Component {
           <Header as="h5" color="red">
             NOT usable!
           </Header>
-          Spent address! Do not send funds here!
+          Spent address! Do not send funds here!&nbsp;
+          {!currentPage && 'This page is archived, any way!'}
         </span>
       )
     ) : balance > 0 ? (
       rawBalance > 0 ? (
         <span>
-          <Header as="h5" color="green">
-            Usable!
+          <Header as="h5" color={currentPage ? 'green' : 'yellow'}>
+            {currentPage ? 'Usable!' : 'Archived page address'}
           </Header>
-          Address has positive balance, but has not been spent.
+          Address has positive balance, but has not been spent.&nbsp;
+          {!currentPage &&
+            'You should transfer these funds to the current page!'}
         </span>
       ) : (
         <span>
           <Header as="h5" color="red">
             NOT usable!
           </Header>
-          An outgoing transaction is pending. Do not send funds here!
+          An outgoing transaction is pending. Do not send funds here!&nbsp;
+          {!currentPage && 'This page is archived, any way!'}
         </span>
       )
     ) : (
       <span>
-        <Header as="h5" color="green">
-          Usable!
+        <Header as="h5" color={currentPage ? 'green' : 'yellow'}>
+          {currentPage ? 'Usable!' : 'Archived page address'}
         </Header>
-        Empty address with no balance.
+        Empty address with no balance.&nbsp;
+        {!currentPage && 'However, this page is archived. So do not use!'}
       </span>
     );
 
@@ -83,12 +91,17 @@ class AddressMenuItem extends React.Component {
       </span>
     );
     const qrcode =
-      selected && (!spent || spa) ? (
+      (selected || (!anySelected && latestAddress)) &&
+      (!spent || spa) &&
+      currentPage ? (
         <Popup
           position="left center"
           trigger={
             <div className="qrcode" onClick={copyAddress}>
-              <QRCode value={romeo.iota.utils.addChecksum(address)} size={256} />
+              <QRCode
+                value={romeo.iota.utils.addChecksum(address)}
+                size={256}
+              />
             </div>
           }
           content="Click to copy the address!"

@@ -11,7 +11,7 @@ export const terminateRomeo = () => ({
 const romeoReducer = (state = null, action) => {
   switch (action.type) {
     case 'UPDATE_ROMEO':
-      return action.payload;
+      return Object.assign({}, action.payload);
     case 'TERMINATE_ROMEO':
       return null;
     default:

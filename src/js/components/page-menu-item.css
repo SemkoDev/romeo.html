@@ -13,10 +13,16 @@
 }
 
 .menuSubHeader {
-  width: 190px;
+  width: 180px;
 }
 
 div.qrcode canvas {
   width: 100% !important;
   height: auto !important;
+}
+
+@media (max-width: 480px) {
+  .ui.icon.menu .item.topMenu {
+    width: 294px;
+  }
 }

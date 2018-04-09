@@ -18,6 +18,8 @@ Download the latest release from the releases tab.
 
 You can use command-line tools on your OS or upload the file at [OnlineMD5](http://onlinemd5.com/)
 
+**NOTE**: Safari is currently NOT supported!
+
 ## How to compile locally
 
 Clone or download the repository. Then run:

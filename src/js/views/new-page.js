@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import {
   Grid,
@@ -10,6 +9,7 @@ import {
   Icon
 } from 'semantic-ui-react';
 import { get, linkToCurrentPage, showInfo } from '../romeo';
+import deepHoc from '../components/deep-hoc';
 
 class NewPage extends React.Component {
   constructor(props) {
@@ -26,7 +26,7 @@ class NewPage extends React.Component {
       <span>
         <Grid>
           <Grid.Row>
-            <Grid.Column width={12}>
+            <Grid.Column computer={12} tablet={16}>
               <Header as="h2">Add a new page</Header>
               <Segment basic style={{ padding: 0 }} loading={adding}>
                 <Message
@@ -82,20 +82,28 @@ class NewPage extends React.Component {
     const romeo = get();
 
     this.setState({ adding: true });
+    showInfo(
+      <span>
+        <Icon name="clock" />
+        New page is being added! Please wait for the setup to complete. It can
+        take up to a few minutes. You can continue using Romeo, but please do
+        not close it. You will get another notification, once the setup is
+        complete.
+      </span>,
+      12000,
+      'warning'
+    );
     romeo.newPage().then(() => {
-      this.setState({ adding: false });
       history.push(linkToCurrentPage());
       showInfo(
         <span>
-          <Icon name="file" /> New page added!
-        </span>
+          <Icon name="file" /> New page setup complete!
+        </span>,
+        6000,
+        'success'
       );
     });
   }
 }
 
-function mapStateToProps(state, props) {
-  return {};
-}
-
-export default connect(mapStateToProps)(NewPage);
+export default deepHoc(NewPage);
