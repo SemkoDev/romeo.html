@@ -16,6 +16,7 @@ import Nav from '../components/nav';
 import { get, showInfo } from '../romeo';
 import { searchSpentAddressThunk } from '../reducers/ui';
 import { formatIOTAAmount } from '../utils';
+import deepHoc from '../components/deep-hoc';
 
 import classes from './transfer.css';
 
@@ -46,6 +47,15 @@ class Transfer extends React.Component {
     this.handleAddressChange = this.handleAddressChange.bind(this);
     this.handleChange0 = this.handleChange0.bind(this);
     this.sendTransfer = this.sendTransfer.bind(this);
+    this.romeo = get();
+    this.pageObject = this.romeo.pages.getByIndex(props.currentIndex).page;
+  }
+
+  componentWillReceiveProps (props) {
+    const { currentIndex } = props;
+    if (currentIndex !== this.props.currentIndex) {
+      this.pageObject = this.romeo.pages.getByIndex(currentIndex).page;
+    }
   }
 
   render() {
@@ -118,22 +128,21 @@ class Transfer extends React.Component {
 
   renderStep0() {
     const {
-      pageObject,
-      romeo,
       ui: {
         searchSpentAddress,
         searchSpentAddressError,
         spentAddress,
         spentAddressResult
-      }
+      },
+      page: { page: { balance: pageBalance }}
     } = this.props;
     const { value, address, unit, tag } = this.state;
     const totalValue = value * unit;
     const formattedValue = formatIOTAAmount(totalValue).short;
-    const validTag = !tag.length || romeo.iota.valid.isTrytes(tag);
+    const validTag = !tag.length || this.romeo.iota.valid.isTrytes(tag);
     let validAddress = false;
     try {
-      validAddress = romeo.iota.utils.isValidChecksum(address);
+      validAddress = this.romeo.iota.utils.isValidChecksum(address);
     } catch (e) {
       validAddress = false;
     }
@@ -146,7 +155,7 @@ class Transfer extends React.Component {
       usedAddress = spentAddressResult && !searchingSpent;
     }
 
-    const enoughBalance = totalValue <= pageObject.getBalance();
+    const enoughBalance = totalValue <= pageBalance;
     const color = totalValue >= 0 && enoughBalance ? 'green' : 'red';
     const addressInfo = validAddress ? null : (
       <Grid.Row>
@@ -413,12 +422,14 @@ class Transfer extends React.Component {
   }
 
   renderDonation() {
-    const { pageObject } = this.props;
+    const {
+      page: { page: { balance: pageBalance }}
+    } = this.props;
     const { donationAddress, donationValue, donationUnit } = this.state;
     if (!donationAddress) return null;
     const totalValue = donationValue * donationUnit;
     const formattedValue = formatIOTAAmount(totalValue).short;
-    const enoughBalance = totalValue <= pageObject.getBalance();
+    const enoughBalance = totalValue <= pageBalance;
     const color = totalValue > 0 && enoughBalance ? 'green' : 'red';
 
     return (
@@ -487,11 +498,13 @@ class Transfer extends React.Component {
   }
 
   renderTotalStep0(validAddress, validTag) {
-    const { pageObject } = this.props;
+    const {
+      page: { page: { balance: pageBalance }}
+    } =  this.props;
     const { value, unit, donationValue, donationUnit } = this.state;
     const totalValue = donationValue * donationUnit + value * unit;
     const formattedValue = formatIOTAAmount(totalValue).short;
-    const enoughBalance = totalValue <= pageObject.getBalance();
+    const enoughBalance = totalValue <= pageBalance;
     const color = totalValue >= 0 && enoughBalance ? 'green' : 'red';
 
     const canProceed =
@@ -538,13 +551,15 @@ class Transfer extends React.Component {
   }
 
   canGoToStep1() {
-    const { pageObject } = this.props;
+    const {
+      page: { page: { balance: pageBalance }}
+    } = this.props
     const { value, unit, donationValue, donationUnit } = this.state;
     const totalValue = donationValue * donationUnit + value * unit;
-    const enoughBalance = totalValue <= pageObject.getBalance();
+    const enoughBalance = totalValue <= pageBalance;
     let validAddress = false;
     try {
-      validAddress = romeo.iota.utils.isValidChecksum(address);
+      validAddress = this.romeo.iota.utils.isValidChecksum(address);
     } catch (e) {
       validAddress = false;
     }
@@ -575,7 +590,7 @@ class Transfer extends React.Component {
   }
 
   sendTransfer() {
-    const { pageObject, history } = this.props;
+    const { history } = this.props;
     const {
       value,
       unit,
@@ -602,30 +617,27 @@ class Transfer extends React.Component {
     }
 
     this.setState({ sending: true });
-    pageObject.sendTransfers(transfers, null, null, null, 70).then(() => {
+    this.pageObject.sendTransfers(transfers, null, null, null, 7000).then(() => {
       this.setState({ sending: false });
-      history.push(`/page/${pageObject.opts.index + 1}`);
+      history.push(`/page/${this.pageObject.opts.index + 1}`);
       showInfo(
         <span>
           <Icon name="send" /> Transfer sent!
         </span>
       );
-      pageObject.sync(true, 70);
+      this.pageObject.sync(true, 7000);
     });
   }
 }
 
 function mapStateToProps(state, props) {
-  const romeo = get();
   const { pages } = state.romeo;
   const { match: { params } } = props;
   const currentIndex = parseInt((params && params.page) || 0) - 1;
-  const pageObject = romeo.pages.getByIndex(currentIndex).page;
   const page = pages.find(p => p.page.index === currentIndex);
   return {
-    romeo,
+    currentIndex,
     page,
-    pageObject,
     ui: state.ui,
     donationAddress:
       state.field && state.field.season && state.field.season.address
@@ -638,4 +650,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Transfer);
+export default connect(mapStateToProps, mapDispatchToProps)(deepHoc(Transfer));

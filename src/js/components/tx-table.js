@@ -11,6 +11,7 @@ import {
   Divider
 } from 'semantic-ui-react';
 import { formatIOTAAmount } from '../utils';
+import deepHoc from './deep-hoc';
 
 class TXTable extends React.Component {
   constructor(props) {
@@ -70,7 +71,7 @@ class TXTable extends React.Component {
     const buttons = (mini) => (
       <Button.Group fluid>
         <Button
-          Button    icon
+          icon
           size="tiny"
           onClick={() =>
             window.open(
@@ -160,4 +161,4 @@ class TXTable extends React.Component {
   }
 }
 
-export default withRouter(TXTable);
+export default withRouter(deepHoc(TXTable));

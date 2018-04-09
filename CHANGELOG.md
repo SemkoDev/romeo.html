@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Improved address menu to hide QR code on old/used addresses.
 - Improved address menu descriptions/tooltips.
+- Improved sync speed of pages and creation of new ones on big ledgers.
+- Improved UI response times.
 
 ## [0.1.3] - 2018-04-07
 

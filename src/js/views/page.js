@@ -7,6 +7,7 @@ import Nav from '../components/nav';
 import { get, linkToCurrentPage, isCurrentIndex, isPageTooBig } from '../romeo';
 import AddressMenu from '../components/address-menu';
 import TXTable from '../components/tx-table';
+import deepHoc from '../components/deep-hoc';
 
 import classes from './page.css';
 
@@ -220,4 +221,4 @@ function mapStateToProps(state, props) {
   };
 }
 
-export default connect(mapStateToProps)(Page);
+export default connect(mapStateToProps)(deepHoc(Page));

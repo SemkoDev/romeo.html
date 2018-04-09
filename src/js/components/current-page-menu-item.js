@@ -7,6 +7,7 @@ import { version } from '../../../package';
 import { get, linkToCurrentPage, showInfo } from '../romeo';
 import { formatIOTAAmount } from '../utils';
 import PageMenuItem from './page-menu-item';
+import deepHoc from './deep-hoc';
 
 class CurrentPageMenuItem extends React.Component {
   render() {
@@ -38,7 +39,7 @@ class CurrentPageMenuItem extends React.Component {
     const closeOnMobileClick = (f) => {
       if (mobile) onClick();
       f();
-    }
+    };
 
     const addressItem = currentAddress ? (
       <Menu.Item onClick={() => closeOnMobileClick(copyAddress)} key='address'>
@@ -180,4 +181,4 @@ export function copyData(data, message = 'Copied!', icon = 'check') {
   );
 }
 
-export default withRouter(CurrentPageMenuItem);
+export default withRouter(deepHoc(CurrentPageMenuItem));

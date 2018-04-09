@@ -28,5 +28,9 @@ const store = createStore(
   enhancer
 );
 store.dispatch(getSeason());
+// TODO: remove me!
+login('Maximilian', 'Mustermann999!', data =>
+  store.dispatch(updateRomeo(data))
+);
 
 export default store;

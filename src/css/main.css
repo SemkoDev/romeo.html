@@ -49,6 +49,10 @@ html,
 
 .romeoLogoContainer .content {
   position: relative;
-  top: 5px;
+  top: 4px;
   left: 5px;
+}
+
+.romeoLogoContainer .romeoLogo {
+  background-size: 35px auto;
 }

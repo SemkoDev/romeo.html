@@ -6,6 +6,7 @@ import { Menu, Icon, Header, Label, Popup } from 'semantic-ui-react';
 import { get } from '../romeo';
 import { formatIOTAAmount } from '../utils';
 import { copyData } from './current-page-menu-item';
+import deepHoc from './deep-hoc';
 
 import classes from './page-menu-item.css';
 
@@ -141,4 +142,6 @@ class AddressMenuItem extends React.Component {
   }
 }
 
-export default withRouter(AddressMenuItem);
+export default withRouter(deepHoc(AddressMenuItem));
+
+

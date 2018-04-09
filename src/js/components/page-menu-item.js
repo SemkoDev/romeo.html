@@ -4,6 +4,7 @@ import { withRouter } from 'react-router-dom';
 import prettyMs from 'pretty-ms';
 import { Menu, Icon, Header, Label } from 'semantic-ui-react';
 import { version } from '../../../package';
+import deepHoc from './deep-hoc';
 
 import classes from './page-menu-item.css';
 
@@ -111,4 +112,4 @@ class LastSynced extends React.Component {
   }
 }
 
-export default withRouter(PageMenuItem);
+export default withRouter(deepHoc(PageMenuItem));

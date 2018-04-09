@@ -4,7 +4,7 @@ export const updateField = update => ({
 });
 
 export const getSeason = () => dispatch =>
-  fetch('http://field.carriota.com/api/v1/seasons')
+  fetch('https://field.carriota.com/api/v1/seasons')
     .then(response => {
       return response.json();
     })

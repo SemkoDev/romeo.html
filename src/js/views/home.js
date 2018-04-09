@@ -8,7 +8,6 @@ import {
   Menu,
   Segment,
   Icon,
-  Image,
   Header,
   Popup,
   Modal,
@@ -21,6 +20,7 @@ import { logout, get, linkToCurrentPage } from '../romeo';
 import PageMenu from '../components/page-menu';
 import CurrentPageMenuItem from '../components/current-page-menu-item';
 import OnlineMonitor from '../components/online-monitor';
+import deepHoc from '../components/deep-hoc';
 import Page from './page';
 import Transfer from './transfer';
 import Loading from './loading';
@@ -115,8 +115,8 @@ class Home extends React.Component {
         />
         <Responsive as={Route} maxWidth={949} path='/page/new' component={pageMenuItem} />
         <Responsive as={Menu.Item} minWidth={1170}>
-          <Header as="h4" textAlign="left" color="purple">
-            <Image size='small' src={require('../../img/logo.png')} />
+          <Header as="h4" textAlign="left" color="purple" className='romeoLogoContainer'>
+            <div className='romeoLogo' />
             <Header.Content>
               Ultra-Light Ledger
               <Header.Subheader>CarrIOTA Romeo v.{version}</Header.Subheader>
@@ -361,7 +361,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export default connect(mapStateToProps, mapDispatchToProps)(deepHoc(Home));
 
 function old() {
   return (

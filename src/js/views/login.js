@@ -16,7 +16,6 @@ import {
   Responsive
 } from 'semantic-ui-react';
 import { version } from '../../../package';
-import { updateRomeo } from '../reducers/romeo';
 import { login } from '../romeo';
 
 import classes from './login.css';
@@ -193,7 +192,6 @@ class Login extends React.Component {
   }
 
   handleSubmit() {
-    const { login } = this.props;
     const { username, password, file } = this.state;
     const u = romeo.utils.validate.isUsername(username).valid;
     const p = romeo.utils.validate.isPassword(password).valid;
@@ -234,12 +232,4 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    login: (username, password, file) => {
-      login(username, password, romeo => dispatch(updateRomeo(romeo)), file);
-    }
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default connect(mapStateToProps)(Login);

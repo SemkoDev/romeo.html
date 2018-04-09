@@ -2251,7 +2251,7 @@ falafel@^2.1.0:
     isarray "0.0.1"
     object-keys "^1.0.6"
 
-fast-deep-equal@^1.0.0:
+fast-deep-equal@^1.0.0, fast-deep-equal@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-1.1.0.tgz#c053477817c86b51daa853c81e059b733d023614"
 
@@ -5340,9 +5340,9 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^2.0.0"
     inherits "^2.0.1"
 
-romeo.lib@0.1.3:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/romeo.lib/-/romeo.lib-0.1.3.tgz#ea20cdde656271c89577203c4592c70e7dc6debe"
+romeo.lib@0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/romeo.lib/-/romeo.lib-0.1.5.tgz#67a77eac68c3b542931ef84e3e8638bebe7fd9ae"
   dependencies:
     better-queue "^3.8.6"
     better-queue-memory "^1.0.2"
