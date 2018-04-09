@@ -7,16 +7,22 @@ import {
   Header,
   Icon,
   Step,
-  Form,
+  Table,
   Divider,
   Button,
-  Segment
+  Label,
+  Segment,
+  Responsive,
+  Checkbox,
+  Popup
 } from 'semantic-ui-react';
+import romeo from 'romeo.lib'
 import Nav from '../components/nav';
 import { get, showInfo } from '../romeo';
 import { searchSpentAddressThunk } from '../reducers/ui';
 import { formatIOTAAmount } from '../utils';
 import deepHoc from '../components/deep-hoc';
+import TransferRow from '../components/transfer-row';
 
 import classes from './transfer.css';
 
@@ -28,6 +34,8 @@ const UNITS = [
   { key: 't', text: 'Ti', value: 1000000000000 }
 ];
 
+const MAX_TXS = 5;
+
 class Transfer extends React.Component {
   constructor(props) {
     super(props);
@@ -35,27 +43,59 @@ class Transfer extends React.Component {
     this.state = {
       maxStep: 0,
       currentStep: 0,
-      address: (location && location.state && location.state.address) || '',
-      value: 0,
-      unit: 1000000,
-      donationAddress: this.props.donationAddress,
-      donationValue: 0,
-      donationUnit: 1000000,
-      tag: '',
-      sending: false
+      autoInput: true,
+      forceInput: false,
+      sending: false,
+      transfers: [
+        {
+          address: (location && location.state && location.state.address) || '',
+          tag: (location && location.state && location.state.tag) || '',
+          value: (location && location.state && location.state.value) || 0,
+          valid: false,
+          identifier: romeo.utils.createIdentifier()
+        }
+      ],
+      donation: {
+        address: this.props.donationAddress,
+        tag: '999CARRIOTAROMEODONATION999',
+        value: 0,
+        valid: true,
+        identifier: romeo.utils.createIdentifier()
+      }
     };
-    this.handleAddressChange = this.handleAddressChange.bind(this);
     this.handleChange0 = this.handleChange0.bind(this);
+    this.handleChange1 = this.handleChange1.bind(this);
     this.sendTransfer = this.sendTransfer.bind(this);
+    this.addTransfer = this.addTransfer.bind(this);
     this.romeo = get();
-    this.pageObject = this.romeo.pages.getByIndex(props.currentIndex).page;
+  }
+
+  componentWillMount () {
+    this.setObjects(this.props.currentIndex);
   }
 
   componentWillReceiveProps (props) {
     const { currentIndex } = props;
     if (currentIndex !== this.props.currentIndex) {
-      this.pageObject = this.romeo.pages.getByIndex(currentIndex).page;
+      this.setObjects(currentIndex);
     }
+  }
+
+  setObjects (currentIndex) {
+    this.pageObject = this.romeo.pages.getByIndex(currentIndex).page;
+    this.setState({
+      inputs: this.pageObject.getInputs(true)
+        .filter(i => i.balance > 0)
+        .map(i => ({
+          address: i.address,
+          security: i.security,
+          keyIndex: i.keyIndex,
+          spent: i.spent,
+          balance: i.balance,
+          selected: false
+        }))
+        .sort((a, b) => b.keyIndex - a.keyIndex)
+    });
   }
 
   render() {
@@ -127,221 +167,52 @@ class Transfer extends React.Component {
   }
 
   renderStep0() {
-    const {
-      ui: {
-        searchSpentAddress,
-        searchSpentAddressError,
-        spentAddress,
-        spentAddressResult
-      },
-      page: { page: { balance: pageBalance }}
-    } = this.props;
-    const { value, address, unit, tag } = this.state;
-    const totalValue = value * unit;
-    const formattedValue = formatIOTAAmount(totalValue).short;
-    const validTag = !tag.length || this.romeo.iota.valid.isTrytes(tag);
-    let validAddress = false;
-    try {
-      validAddress = this.romeo.iota.utils.isValidChecksum(address);
-    } catch (e) {
-      validAddress = false;
-    }
-    let searchingSpent = false;
-    let searchingError = false;
-    let usedAddress = false;
-    if (spentAddress === address) {
-      searchingSpent = searchSpentAddress;
-      searchingError = searchSpentAddressError;
-      usedAddress = spentAddressResult && !searchingSpent;
-    }
-
-    const enoughBalance = totalValue <= pageBalance;
-    const color = totalValue >= 0 && enoughBalance ? 'green' : 'red';
-    const addressInfo = validAddress ? null : (
-      <Grid.Row>
-        <Grid.Column computer={12} tablet={16} mobile={16}>
-          <Message
-            info
-            icon="at"
-            header="Make sure your address is correct!"
-            content={
-              <span>
-                Only addresses with checksums are allowed (81-character address
-                + 9-character checksum). An address consists of uppercase
-                letters (A-Z) and the digit 9.
-              </span>
-            }
-          />
-        </Grid.Column>
-      </Grid.Row>
-    );
-    const spentAddressInfo = usedAddress ? (
-      <Grid.Row>
-        <Grid.Column computer={12} tablet={16} mobile={16}>
-          <Message
-            error
-            icon="at"
-            header="This address should not be used!"
-            content={
-              <span>
-                The balance on this address has already been spent. Transferring
-                again to a spent address is discouraged, since it poses problems
-                for the receiving party to securely retrieve the funds you are
-                sending, leading to a potential loss of these funds.
-                <br />
-                <br />
-                Please ask the receiving party to provide you with a new,
-                unspent address!
-              </span>
-            }
-          />
-        </Grid.Column>
-      </Grid.Row>
-    ) : null;
-    const spentAddressErrorInfo = searchingError ? (
-      <Grid.Row>
-        <Grid.Column computer={12} tablet={16} mobile={16}>
-          <Message
-            error
-            icon="at"
-            header="Could not determine the address state!"
-            content={
-              <span>
-                There was a problem checking, whether this address has been
-                spent from. Since sending to a spent address poses security
-                problem for the receiving party, leading to a potential loss of
-                funds, make sure this address has not been spent. Do not send
-                unless 100% sure!
-                <br />
-                <br />
-                Try refreshing the page, make sure you have internet connection
-                and try again!
-              </span>
-            }
-          />
-        </Grid.Column>
-      </Grid.Row>
-    ) : null;
-    const balanceInfo =
-      enoughBalance && totalValue >= 0 ? null : (
+    const { transfers } = this.state;
+    const canAddTransfer = transfers.length < MAX_TXS;
+    const addButton = canAddTransfer
+      ? (
         <Grid.Row>
-          <Grid.Column computer={12} tablet={16} mobile={16}>
-            <Message
-              info
-              icon="balance"
-              header="How many IOTAs do you want to send?"
-              content={
-                <span>
-                  Negative-value transactions are not allowed. Also,
-                  make sure that your page balance is enough to make that
-                  transfer.
-                </span>
-              }
-            />
+          <Grid.Column mobile={12} computer={4} tablet={6}>
+            <Button onClick={this.addTransfer} fluid color='purple'>
+              <Icon name='plus'/>
+              Add another transfer
+            </Button>
           </Grid.Column>
         </Grid.Row>
-      );
+      )
+      : null;
 
     return (
       <span>
         <Grid>
-          <Grid.Row>
-            <Grid.Column width={12}>
-              <Form>
-                <Form.Group>
-                  <Form.Input
-                    fluid
-                    label="Address"
-                    onChange={this.handleAddressChange}
-                    loading={searchingSpent}
-                    error={!validAddress || searchingError || usedAddress}
-                    value={address}
-                    placeholder="XYZ"
-                    width={9}
-                    name="address"
-                    maxLength={90}
-                  />
-                  <Form.Input
-                    fluid
-                    label="Tag"
-                    onChange={this.handleChange0}
-                    error={!validTag}
-                    value={tag}
-                    placeholder="XYZ"
-                    width={3}
-                    name="tag"
-                    maxLength={27}
-                  />
-                  <Form.Input
-                    fluid
-                    label="Value"
-                    onChange={this.handleChange0}
-                    error={value<0}
-                    value={value}
-                    width={2}
-                    name="value"
-                    type="number"
-                    min="0"
-                  />
-                  <Form.Select
-                    fluid
-                    label="Unit"
-                    onChange={this.handleChange0}
-                    options={UNITS}
-                    name="unit"
-                    value={unit}
-                    width={2}
-                  />
-                </Form.Group>
-              </Form>
-            </Grid.Column>
-            <Grid.Column width={4}>
-              <Header
-                as="h2"
-                textAlign="right"
-                color={color}
-                className="valueDisplay"
-              >
-                <Header.Content>
-                  {formattedValue}
-                  <Header.Subheader>
-                    {!enoughBalance && 'Not enough balance!'}
-                    {totalValue < 0 && 'Input a positive value!'}
-                  </Header.Subheader>
-                </Header.Content>
-              </Header>
-            </Grid.Column>
-          </Grid.Row>
-          {spentAddressInfo}
-          {addressInfo}
-          {balanceInfo}
-          {spentAddressErrorInfo}
+          {transfers.map((t, i) => (
+            <TransferRow
+              key={t.identifier}
+              identifier={t.identifier}
+              address={t.address}
+              tag={t.tag}
+              value={t.value}
+              onChange={(value) => this.handleChange0(i, value)}
+              onRemove={transfers.length > 1 ? () => this.removeTransfer(i) : false}/>
+          ))}
+          {addButton}
         </Grid>
         {this.renderDonation()}
-        {this.renderTotalStep0(validAddress, validTag)}
+        {this.renderTotalStep0()}
       </span>
     );
   }
 
   renderStep1() {
+    const { transfers, donation } = this.state;
+    const totalValue = donation.value + transfers.reduce((s, t) => s + t.value, 0);
+    let content = totalValue < 1
+      ? this.renderNoInput1()
+      : this.renderInput1();
+
     return (
       <Grid>
-        <Grid.Row>
-          <Grid.Column computer={12} tablet={16} mobile={16}>
-            <Message
-              info
-              icon="at"
-              header="Automatic address selection enabled"
-              content={
-                <span>
-                  The source/input addresses to cover the total transfer value
-                  will be selected automatically. Optional manual selection
-                  coming soon!
-                </span>
-              }
-            />
-          </Grid.Column>
-        </Grid.Row>
+        {content}
         <Grid.Row>
           <Grid.Column computer={12} tablet={16} mobile={16} textAlign="right">
             <Divider />
@@ -364,49 +235,109 @@ class Transfer extends React.Component {
   }
 
   renderStep2() {
-    const {
-      value,
-      unit,
-      donationValue,
-      donationUnit,
-      address,
-      donationAddress,
-      tag
-    } = this.state;
-    const totalTransfer = value * unit;
-    const totalDonation = donationValue * donationUnit;
+    const { transfers, donation } = this.state;
+    const totalValue = donation.value + transfers.reduce((s, t) => s + t.value, 0);
+    const donationRow = donation.value > 0
+      ? (
+        <Table.Row positive>
+          <Table.Cell className='dont-break-out'>
+            <Label ribbon color='purple'>
+              <Icon name='heart'/> Donation
+            </Label>
+            {donation.address}
+          </Table.Cell>
+          <Table.Cell className='dont-break-out'>
+            <Label>
+              <Icon name="tag" />
+              {donation.tag.padEnd(27, '9')}
+            </Label>
+          </Table.Cell>
+          <Table.Cell textAlign='right'>
+            <Responsive maxWidth={767}>
+              <Divider/>
+            </Responsive>
+            <Header as="h2" textAlign="right" color='green'>
+              <Header.Content>
+                {formatIOTAAmount(donation.value).short}
+                <Header.Subheader>
+                  {donation.value}
+                </Header.Subheader>
+              </Header.Content>
+            </Header>
+          </Table.Cell>
+        </Table.Row>
+        )
+      : null;
 
-    const transferInfo =
-      totalTransfer >= 0 ? (
-        <Message
-          info
-          icon="send"
-          className='dont-break-out'
-          header={`You are transferring ${
-            formatIOTAAmount(totalTransfer).short
-          } (${totalTransfer}) IOTAs ${ tag && tag.length ? `tagged "${tag}"` : ''}`}
-          content={`To: ${address}`}
-        />
-      ) : null;
-
-    const donationInfo =
-      totalDonation > 0 ? (
-        <Message
-          success
-          icon="heart"
-          className='dont-break-out'
-          header={`You are donating ${
-            formatIOTAAmount(totalDonation).short
-          } (${totalDonation}) IOTAs`}
-          content={`To: ${donationAddress}`}
-        />
-      ) : null;
     return (
       <Grid>
         <Grid.Row>
           <Grid.Column computer={12} tablet={16} mobile={16}>
-            {transferInfo}
-            {donationInfo}
+            <Table striped stackable compact fixed>
+              <Table.Header>
+                <Table.Row>
+                  <Table.HeaderCell width={7}>
+                    Address
+                  </Table.HeaderCell>
+                  <Table.HeaderCell width={6}>
+                    Tag
+                  </Table.HeaderCell>
+                  <Table.HeaderCell width={3}>
+                    Value
+                  </Table.HeaderCell>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {transfers.map(t => (
+                  <Table.Row key={t.identifier}>
+                    <Table.Cell className='dont-break-out'>
+                      {t.address}
+                    </Table.Cell>
+                    <Table.Cell className='dont-break-out'>
+                      <Label>
+                        <Icon name="tag" />
+                        {t.tag.padEnd(27, '9')}
+                      </Label>
+                    </Table.Cell>
+                    <Table.Cell textAlign='right'>
+                      <Responsive maxWidth={767}>
+                        <Divider/>
+                      </Responsive>
+                      <Header as="h2" textAlign="right" color='green'>
+                        <Header.Content>
+                          {formatIOTAAmount(t.value).short}
+                          <Header.Subheader>
+                            {t.value}
+                          </Header.Subheader>
+                        </Header.Content>
+                      </Header>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+                {donationRow}
+                <Table.Row>
+                  <Table.Cell>
+                    <Header as='h4'>
+                      Total:
+                    </Header>
+                  </Table.Cell>
+                  <Table.Cell />
+                  <Table.Cell textAlign='right'>
+                    <Responsive maxWidth={767}>
+                      <Divider/>
+                    </Responsive>
+                    <Header as="h2" textAlign="right" color='green'>
+                      <Header.Content>
+                        {formatIOTAAmount(totalValue).short}
+                        <Header.Subheader>
+                          {totalValue}
+                        </Header.Subheader>
+                      </Header.Content>
+                    </Header>
+                  </Table.Cell>
+                </Table.Row>
+              </Table.Body>
+            </Table>
           </Grid.Column>
         </Grid.Row>
         <Grid.Row>
@@ -422,15 +353,9 @@ class Transfer extends React.Component {
   }
 
   renderDonation() {
-    const {
-      page: { page: { balance: pageBalance }}
-    } = this.props;
-    const { donationAddress, donationValue, donationUnit } = this.state;
-    if (!donationAddress) return null;
-    const totalValue = donationValue * donationUnit;
-    const formattedValue = formatIOTAAmount(totalValue).short;
-    const enoughBalance = totalValue <= pageBalance;
-    const color = totalValue > 0 && enoughBalance ? 'green' : 'red';
+    const { donation } = this.state;
+
+    if (!donation.address || !donation.address.length) return null;
 
     return (
       <Grid>
@@ -442,73 +367,51 @@ class Transfer extends React.Component {
             </Header>
           </Grid.Column>
         </Grid.Row>
-        <Grid.Row>
-          <Grid.Column width={12}>
-            <Form>
-              <Form.Group>
-                <Form.Input
-                  fluid
-                  label="Current Field Season Donation Address"
-                  disabled
-                  value={donationAddress}
-                  width={12}
-                  name="donationAddress"
-                />
-                <Form.Input
-                  fluid
-                  label="Value"
-                  onChange={this.handleChange0}
-                  value={donationValue}
-                  width={2}
-                  name="donationValue"
-                  type="number"
-                  min="0"
-                />
-                <Form.Select
-                  fluid
-                  label="Unit"
-                  onChange={this.handleChange0}
-                  options={UNITS}
-                  name="donationUnit"
-                  value={donationUnit}
-                  width={2}
-                />
-              </Form.Group>
-            </Form>
-          </Grid.Column>
-          <Grid.Column width={4}>
-            <Header
-              as="h2"
-              textAlign="right"
-              color={color}
-              className="valueDisplay"
-            >
-              <Header.Content>
-                {formattedValue}
-                <Header.Subheader>
-                  {!enoughBalance && 'Not enough balance!'}
-                  {totalValue < 0 && 'Input a positive value!'}
-                </Header.Subheader>
-              </Header.Content>
-            </Header>
-          </Grid.Column>
-        </Grid.Row>
+        <TransferRow disableAddress
+          onChange={(value) => this.handleChange0('donation', value)}
+          identifier={donation.identifier}
+          address={donation.address}
+          tag={donation.tag}
+          value={donation.value} />
       </Grid>
     );
   }
 
-  renderTotalStep0(validAddress, validTag) {
+  removeTransfer (position) {
+    const { transfers } = this.state;
+    const newTransfers = transfers.slice();
+    newTransfers.splice(position, 1);
+    this.setState({ transfers: newTransfers });
+  }
+
+  addTransfer () {
+    const { transfers } = this.state;
+    const newTransfers = transfers.slice();
+    newTransfers.splice(transfers.length, 0, {
+      address: '',
+      tag: '',
+      value: 0,
+      valid: false,
+      identifier: romeo.utils.createIdentifier()
+    });
+    this.setState({ transfers: newTransfers });
+  }
+
+  renderTotalStep0() {
     const {
       page: { page: { balance: pageBalance }}
     } =  this.props;
-    const { value, unit, donationValue, donationUnit } = this.state;
-    const totalValue = donationValue * donationUnit + value * unit;
+    const { transfers, donation, inputs } = this.state;
+    const totalValue = donation.value + transfers.reduce((s, t) => s + t.value, 0);
     const formattedValue = formatIOTAAmount(totalValue).short;
     const enoughBalance = totalValue <= pageBalance;
     const color = totalValue >= 0 && enoughBalance ? 'green' : 'red';
+    const nextStep = totalValue > 0 ? 1 : 2;
+    const sufficient = inputs
+      .filter(i => !i.spent)
+      .reduce((t, i) => t + i.balance, 0) >= totalValue;
 
-    const canProceed =
-      totalValue >= 0 && enoughBalance && validAddress && validTag;
+    const canProceed = enoughBalance && this.canGoToStep1();
 
     return (
       <Grid>
@@ -521,8 +424,9 @@ class Transfer extends React.Component {
               size="large"
               onClick={() =>
                 this.setState({
-                  currentStep: 1,
-                  maxStep: 1
+                  currentStep: nextStep,
+                  maxStep: nextStep,
+                  forceInput: !sufficient
                 })
               }
             >
@@ -550,82 +454,241 @@ class Transfer extends React.Component {
     );
   }
 
+  renderInput1 () {
+    const { autoInput, forceInput } = this.state;
+
+    const content = autoInput && !forceInput
+      ? (
+        <Message
+          info
+          icon="at"
+          header="Automatic address selection enabled"
+          content={
+            <span>
+                  The source/input addresses to cover the total transfer value
+                  will be selected automatically.
+                </span>
+          }
+        />
+      )
+      : this.renderInputTable1();
+
+    return [
+      <Grid.Row key='checkbox'>
+        <Grid.Column computer={12} tablet={16} mobile={16}>
+          <Checkbox
+            toggle
+            disabled={forceInput}
+            onChange={() => this.setState({ autoInput: !autoInput })}
+            label='Automatic source selection'
+            checked={autoInput || forceInput} />
+        </Grid.Column>
+      </Grid.Row>,
+      <Grid.Row key='content'>
+        <Grid.Column computer={12} tablet={16} mobile={16}>
+          {content}
+        </Grid.Column>
+      </Grid.Row>
+    ]
+  }
+
+  renderInputTable1 () {
+    const { transfers, donation, inputs } = this.state;
+    const totalValue = donation.value + transfers.reduce((s, t) => s + t.value, 0);
+    const selectedValue = inputs
+      .filter(i => i.selected)
+      .reduce((t, i) => t + i.balance, 0);
+    const outstanding = Math.max(0, totalValue - selectedValue);
+
+    return (
+      <Table compact celled definition>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell />
+            <Table.HeaderCell>Address</Table.HeaderCell>
+            <Table.HeaderCell>Balance</Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          { inputs.map((i, x) => (
+            <Table.Row key={i.address} negative={i.selected && i.spent} positive={i.selected && !i.spent}>
+              <Table.Cell>
+                <Checkbox toggle onChange={() => this.handleChange1(x)} checked={i.selected}/>
+              </Table.Cell>
+              <Table.Cell className='dont-break-out'>
+                {!i.spent
+                  ? <Icon name="check" color="green" />
+                  : <Icon name="close" color="red" />}
+                {i.spent
+                  ? (
+                    <Popup
+                      trigger={<span>{i.address}</span>}
+                      position='top left'
+                      content='This address is marked as spent. If possible, do not use!'
+                    />
+                  )
+                  : i.address}
+              </Table.Cell>
+              <Table.Cell textAlign='right'>
+                <Responsive maxWidth={767}>
+                  <Divider/>
+                </Responsive>
+                <Header as="h2" textAlign="right" color='green'>
+                  <Header.Content>
+                    {formatIOTAAmount(i.balance).short}
+                    <Header.Subheader>
+                      {i.balance}
+                    </Header.Subheader>
+                  </Header.Content>
+                </Header>
+              </Table.Cell>
+            </Table.Row>
+          ))}
+          <Table.Row active>
+            <Table.Cell/>
+            <Table.Cell>
+              <Header as='h4'>
+                Total needed:
+              </Header>
+            </Table.Cell>
+            <Table.Cell>
+              <Responsive maxWidth={767}>
+                <Divider/>
+              </Responsive>
+              <Header as="h2" textAlign="right" color='green'>
+                <Header.Content>
+                  {formatIOTAAmount(totalValue).short}
+                  <Header.Subheader>
+                    {totalValue}
+                  </Header.Subheader>
+                </Header.Content>
+              </Header>
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell/>
+            <Table.Cell>
+              <Header as='h4'>
+                Pending to select:
+              </Header>
+            </Table.Cell>
+            <Table.Cell>
+              <Responsive maxWidth={767}>
+                <Divider/>
+              </Responsive>
+              <Header as="h2" textAlign="right" color={outstanding ? 'red' : 'green'}>
+                <Header.Content>
+                  {formatIOTAAmount(outstanding).short}
+                  <Header.Subheader>
+                    {outstanding}
+                  </Header.Subheader>
+                </Header.Content>
+              </Header>
+            </Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table>
+    );
+  }
+
+  renderNoInput1 () {
+    return (
+      <Grid.Row>
+        <Grid.Column computer={12} tablet={16} mobile={16}>
+          <Message
+            info
+            icon="at"
+            header="You do not need to select input addresses"
+            content={
+              <span>
+                Since the total value of your transactions is zero, no
+                input addresses are necessary.
+              </span>
+            }
+          />
+        </Grid.Column>
+      </Grid.Row>
+    )
+  }
+
   canGoToStep1() {
-    const {
-      page: { page: { balance: pageBalance }}
-    } = this.props
-    const { value, unit, donationValue, donationUnit } = this.state;
-    const totalValue = donationValue * donationUnit + value * unit;
-    const enoughBalance = totalValue <= pageBalance;
-    let validAddress = false;
-    try {
-      validAddress = this.romeo.iota.utils.isValidChecksum(address);
-    } catch (e) {
-      validAddress = false;
-    }
-    return totalValue > 0 && enoughBalance && validAddress;
+    const { donation, transfers } = this.state;
+    return !transfers.find(t => !t.valid) && donation.valid;
   }
 
-  handleAddressChange(event, data) {
-    const { searchSpent } = this.props;
-    searchSpent(data.value);
-    this.handleChange0(event, data);
+  handleChange0(pos, value) {
+    if (pos === 'donation') {
+      this.setState({ donation: value });
+      return;
+    }
+    const { transfers } = this.state;
+    const newTransfers = transfers.slice();
+    newTransfers[pos] = value;
+    this.setState({ transfers: newTransfers });
   }
 
-  handleChange0(event, { name, value }) {
-    if (name === 'address' || name === 'tag') {
-      value = value.toUpperCase();
-    }
-    if  (name === 'value') {
-      value = !isNaN(parseFloat(value)) && isFinite(value)
-        ? value
-        : '';
-    }
-    this.setState({ [name]: value }, () => {
-      const { maxStep } = this.state;
-      this.setState({
-        maxStep: this.canGoToStep1() ? (maxStep > 0 ? maxStep : 1) : 0
-      });
-    });
+  handleChange1(pos) {
+    const { inputs } = this.state;
+    const newInputs = inputs.slice();
+    newInputs[pos] = Object.assign(
+      {}, inputs[pos], {selected: !inputs[pos].selected});
+    this.setState({ inputs: newInputs });
   }
 
   sendTransfer() {
     const { history } = this.props;
     const {
-      value,
-      unit,
-      address,
-      donationValue,
-      donationUnit,
-      donationAddress,
-      tag
+      donation, transfers, autoInput, forceInput, inputs
     } = this.state;
-    const donation = donationValue * donationUnit;
-    const transfers = [
-      {
-        address,
-        tag,
-        value: value * unit
-      }
-    ];
+    const totalValue = donation.value + transfers.reduce((s, t) => s + t.value, 0);
+    const txs = transfers.slice();
 
-    if (donation) {
-      transfers.push({
-        address: donationAddress,
-        value: donation
-      });
+    if (donation.value && donation.valid) {
+      txs.push(donation);
+    }
+    let txInputs = inputs.filter(i => i.selected);
+
+    if (autoInput && !forceInput ) {
+      txInputs = [];
+      let inputValue = 0;
+      const unspent = inputs.filter(i => !i.spent);
+      const spent = inputs.filter(i => i.spent);
+      for (let x = 0; x < unspent.length; x++) {
+        txInputs.push(unspent[x]);
+        inputValue += unspent[x].balance;
+        if (inputValue >= totalValue) break;
+      }
+      if (inputValue < totalValue) {
+        for (let x = 0; x < spent.length; x++) {
+          txInputs.push(spent[x]);
+          inputValue += spent[x].balance;
+          if (inputValue >= totalValue) break;
+        }
+      }
     }
 
     this.setState({ sending: true });
-    this.pageObject.sendTransfers(transfers, null, null, null, 7000).then(() => {
-      this.setState({ sending: false });
-      history.push(`/page/${this.pageObject.opts.index + 1}`);
-      showInfo(
-        <span>
-          <Icon name="send" /> Transfer sent!
-        </span>
-      );
-      this.pageObject.sync(true, 7000);
+    this.pageObject.sendTransfers(txs, txInputs, null, null, 7000)
+      .then(() => {
+        this.setState({ sending: false });
+        history.push(`/page/${this.pageObject.opts.index + 1}`);
+        showInfo(
+          <span>
+            <Icon name="send" /> Transfer sent!
+          </span>
+        );
+        this.pageObject.sync(true, 7000);
+      }).catch((error) => {
+        this.setState({ sending: false });
+        history.push(`/page/${this.pageObject.opts.index + 1}`);
+        showInfo(
+          <span>
+            <Icon name="close" />&nbsp;
+            {(error && error.message) || 'Failed sending the transfers!'}
+          </span>,
+          3000,
+          'error'
+        );
     });
   }
 }

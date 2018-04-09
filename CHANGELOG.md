@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Added
+- Multi-destination transfers (up to 5 + donation)
+- Manual address input selection.
 - Responsive, mobile support.
 - Mobile App icons and colors.
 - FavIcon

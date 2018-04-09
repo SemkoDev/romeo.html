@@ -142,6 +142,6 @@ class AddressMenuItem extends React.Component {
   }
 }
 
-export default withRouter(deepHoc(AddressMenuItem));
+export default withRouter(AddressMenuItem);
 
 

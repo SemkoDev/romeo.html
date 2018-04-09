@@ -32,7 +32,7 @@ class TXTable extends React.Component {
     ).filter(t => !hideZero || t.value !== 0);
 
     return (
-      <Table striped stackable compact fixed attached='top'>
+      <Table striped stackable compact fixed>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell width={8}>Transaction</Table.HeaderCell>
