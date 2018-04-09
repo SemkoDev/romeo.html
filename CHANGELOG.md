@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.1.5] - 2018-04-09
+
 ### Added
 
 * Multi-destination transfers (up to 5 + donation)
