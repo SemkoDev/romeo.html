@@ -178,7 +178,7 @@ class Login extends React.Component {
             <Button fluid color='purple' size='huge'
               onClick={this.handleLedgerLogin}
               disabled={loading} loading={loading}>
-              Login with ledger
+              Login with Ledger
             </Button>
           </Segment>
         </Grid.Column>
