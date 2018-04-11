@@ -13,7 +13,8 @@ import {
   Icon,
   Transition,
   Menu,
-  Responsive
+  Responsive,
+  Segment
 } from 'semantic-ui-react';
 import { version } from '../../../package';
 import { updateRomeo } from '../reducers/romeo';
@@ -29,10 +30,12 @@ class Login extends React.Component {
       password: '',
       loading: false,
       file: null,
-      fileError: false
+      fileError: false,
+      mode: 'username'
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleLedgerLogin = this.handleLedgerLogin.bind(this);
     this.handleFiles = this.handleFiles.bind(this);
   }
 
@@ -44,10 +47,15 @@ class Login extends React.Component {
 
   render() {
     const { isLoggedIn, fromPath } = this.props;
+    const { mode } = this.state;
 
     if (isLoggedIn) {
       return <Redirect to={{ pathname: fromPath || '/' }} />;
     }
+
+    const loginView = mode === 'username'
+      ? this.renderUsernameLogin()
+      : this.renderLedgerLogin();
 
     return (
       <div className="loginPage">
@@ -74,39 +82,108 @@ class Login extends React.Component {
               </Grid.Row>
               <Grid.Row centered stretched>
                 <Grid.Column
-                  largeScreen={4}
-                  computer={6}
-                  tablet={8}
+                  largeScreen={8}
+                  computer={12}
+                  tablet={16}
                   mobile={16}
                   stretched
                 >
-                  {this.renderForm()}
-                </Grid.Column>
-                <Grid.Column
-                  largeScreen={4}
-                  computer={6}
-                  tablet={8}
-                  mobile={16}
-                  stretched
-                >
-                  <p>
-                    Please enter your username and password. If no ledgers exist
-                    with the given credentials, a new one will be generated.
-                  </p>
-                  <p>
-                    Spaces, unicode, emticons, everything is allowed. Make sure
-                    to check (and remember) your checksum when the login button
-                    becomes enabled - this is the only way to be sure that you
-                    entered correct details!
-                  </p>
+                  <Button.Group fluid>
+                    <Button style={{ width: '50%'}} active={mode === 'username'}
+                      onClick={() => this.setState({ mode: 'username' })}>
+                      <Icon name='user' /> Username/Pass
+                    </Button>
+                    <Button style={{ width: '50%'}} active={mode === 'ledger'}
+                      onClick={() => this.setState({ mode: 'ledger' })}>
+                      <Icon name='usb' /> Ledger Nano
+                    </Button>
+                  </Button.Group>
                 </Grid.Column>
               </Grid.Row>
+              {loginView}
             </Grid>
           </Transition>
         </Container>
         {this.renderBottomMenu()}
       </div>
     );
+  }
+
+  renderUsernameLogin () {
+    return (
+      <Grid.Row centered stretched>
+        <Grid.Column
+          largeScreen={4}
+          computer={6}
+          tablet={8}
+          mobile={16}
+          stretched
+        >
+          {this.renderForm()}
+        </Grid.Column>
+        <Grid.Column
+          largeScreen={4}
+          computer={6}
+          tablet={8}
+          mobile={16}
+          stretched
+        >
+          <p>
+            Please enter your username and password. If no ledgers exist
+            with the given credentials, a new one will be generated.
+          </p>
+          <p>
+            Spaces, unicode, emticons, everything is allowed. Make sure
+            to check (and remember) your checksum when the login button
+            becomes enabled - this is the only way to be sure that you
+            entered correct details!
+          </p>
+        </Grid.Column>
+      </Grid.Row>
+    )
+  }
+
+  renderLedgerLogin () {
+    const { loading } = this.state;
+
+    return (
+      <Grid.Row centered stretched reversed='mobile'>
+        <Grid.Column
+          largeScreen={4}
+          computer={6}
+          tablet={8}
+          mobile={16}
+          stretched
+        >
+          <p>
+            Use your <strong>Ledger Nano</strong> hardware wallet to
+            login into Romeo.
+          </p>
+          <p>
+            Please be aware that you either use Ledger nano or
+            username/password login. You cannot use both to login
+            into the same account as both are using different
+            techniques to generate and secure your ledger.
+          </p>
+        </Grid.Column>
+        <Grid.Column
+          largeScreen={4}
+          computer={6}
+          tablet={8}
+          mobile={16}
+          stretched
+        >
+          {this.renderUpload()}
+          <Segment basic>
+            <Button fluid color='purple' size='huge'
+              onClick={this.handleLedgerLogin}
+              disabled={loading} loading={loading}>
+              Login with ledger
+            </Button>
+          </Segment>
+        </Grid.Column>
+      </Grid.Row>
+    )
   }
 
   renderForm() {
@@ -128,7 +205,7 @@ class Login extends React.Component {
     const ready = !userLabel && !passwordLabel;
     const checksumLabel = ready ? (
       <Label size="large" color="yellow">
-        {romeo.crypto.keys.getKeys(username, password).checksum}
+        {new romeo.guard.SimpleGuard({ username, password }).getChecksum()}
       </Label>
     ) : null;
     const checksumCheckLabel = ready ? (
@@ -166,7 +243,7 @@ class Login extends React.Component {
   }
 
   renderUpload() {
-    const { file, fileError } = this.state;
+    const { file, fileError, loading } = this.state;
     const color = file ? 'green' : fileError ? 'red' : null;
     const text = file
       ? 'Backup uploaded!'
@@ -177,7 +254,7 @@ class Login extends React.Component {
         fileTypes={['.txt']}
         multipleFiles={false}
       >
-        <Button icon fluid color={color} type="button">
+        <Button icon fluid color={color} type="button" disabled={loading}>
           <Icon name="upload" /> &nbsp;
           {text}
         </Button>
@@ -216,9 +293,22 @@ class Login extends React.Component {
     const { username, password, file } = this.state;
     const u = romeo.utils.validate.isUsername(username).valid;
     const p = romeo.utils.validate.isPassword(password).valid;
+    const guard = new romeo.guard.SimpleGuard({ username, password });
     if (u && p) {
-      this.setState({ loading: true }, () => login(username, password, file));
+      this.setState({ loading: true }, () => login(guard, file));
     }
+  }
+
+  handleLedgerLogin () {
+    const { file } = this.state;
+    // TODO: setup ledger guard here and pass to login:
+    const guard = new romeo.guard.LedgerGuard();
+
+    this.setState(
+      { loading: true },
+      // TODO: uncomment once ledger guard is ready:
+      // () => login(guard, file)
+    );
   }
 
   handleFiles(files) {
@@ -244,7 +334,7 @@ class Login extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    isLoggedIn: state.romeo && state.romeo.keys && true,
+    isLoggedIn: state.romeo && state.romeo.pages && true,
     fromPath:
       state.router.location &&
       state.router.location.state &&
@@ -255,8 +345,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    login: (username, password, file) => {
-      login(username, password, romeo => dispatch(updateRomeo(romeo)), file);
+    login: (guard, file) => {
+      login(guard, romeo => dispatch(updateRomeo(romeo)), file);
     }
   };
 }

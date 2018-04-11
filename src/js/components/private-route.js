@@ -28,7 +28,7 @@ class PrivateRouteContainer extends React.Component {
 }
 
 const PrivateRoute = connect(state => ({
-  isAuthenticated: state.romeo && state.romeo.keys
+  isAuthenticated: state.romeo && state.romeo.pages
 }))(PrivateRouteContainer);
 
 export default PrivateRoute;
