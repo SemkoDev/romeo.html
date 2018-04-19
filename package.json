@@ -12,7 +12,7 @@
     "dist": "parcel build src/index.html --public-url \"/\"",
     "pack": "yarn run build && node ./pack.js",
     "build": "yarn run clean && yarn run dist",
-    "run": "parcel src/index.html"
+    "run": "parcel --https src/index.html"
   },
   "devDependencies": {
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
