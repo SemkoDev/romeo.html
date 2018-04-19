@@ -301,14 +301,11 @@ class Login extends React.Component {
 
   handleLedgerLogin () {
     const { file } = this.state;
-    // TODO: setup ledger guard here and pass to login:
-    const guard = new romeo.guard.LedgerGuard();
 
-    this.setState(
-      { loading: true },
-      // TODO: uncomment once ledger guard is ready:
-      // () => login(guard, file)
-    );
+    romeo.guard.LedgerGuard.build({ debug: true }).then(
+      guard => this.setState({ loading: true },
+        () => this.props.login(guard, file))
+      );
   }
 
   handleFiles(files) {
