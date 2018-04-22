@@ -6,8 +6,7 @@
   "author": "Roman Semko",
   "license": "ISC",
   "scripts": {
-    "fix":
-      "prettier --single-quote --write src/**/* src/js/**/* package.json *.md",
+    "fix": "prettier --single-quote --write src/**/* src/js/**/* package.json *.md",
     "clean": "rimraf dist",
     "dist": "parcel build src/index.html --public-url \"/\"",
     "pack": "yarn run build && node ./pack.js",
@@ -45,7 +44,7 @@
     "react-toastify": "^3.4.3",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
-    "romeo.lib": "0.1.5",
+    "romeo.lib": "https://github.com/IOTA-Ledger/romeo.lib.git#feature/ledger-support",
     "semantic-ui-css": "^2.3.1",
     "semantic-ui-react": "^0.79.0"
   }
