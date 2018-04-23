@@ -169,7 +169,7 @@ class Transfer extends React.Component {
 
   renderStep0() {
     const { transfers } = this.state;
-    const canAddTransfer = transfers.length < MAX_TXS;
+    const canAddTransfer = transfers.length < this.romeo.guard.getMaxOutputs() - 1;
     const addButton = canAddTransfer ? (
       <Grid.Row>
         <Grid.Column mobile={12} computer={4} tablet={6}>
@@ -206,13 +206,21 @@ class Transfer extends React.Component {
   }
 
   renderStep1() {
-    const { transfers, donation } = this.state;
+    const { transfers, donation, forceInput, autoInput } = this.state;
     const totalValue =
       donation.value + transfers.reduce((s, t) => s + t.value, 0);
-    let content = totalValue < 1 ? this.renderNoInput1() : this.renderInput1();
+    const hasEnoughInputs = this.hasEnoughInputs();
+    const hasSufficientInputs = this.hasSufficientFunds();
+    const message = hasSufficientInputs && !hasEnoughInputs
+      ? this.renderTooManyInputs1()
+      : null;
+    let content = totalValue < 1
+      ? this.renderNoInput1()
+      : this.renderInput1();
 
     return (
       <Grid>
+        {message}
         {content}
         <Grid.Row>
           <Grid.Column computer={12} tablet={16} mobile={16} textAlign="right">
@@ -220,6 +228,7 @@ class Transfer extends React.Component {
             <Button
               color="olive"
               size="large"
+              disabled={((forceInput || !autoInput) && !hasEnoughInputs) || !hasSufficientInputs}
               onClick={() =>
                 this.setState({
                   currentStep: 2,
@@ -386,18 +395,33 @@ class Transfer extends React.Component {
     this.setState({ transfers: newTransfers });
   }
 
+  hasEnoughInputs () {
+    const { transfers, donation, inputs } = this.state;
+    const totalValue =
+      donation.value + transfers.reduce((s, t) => s + t.value, 0);
+    const unspentInputs = inputs.filter(i => !i.spent);
+    return unspentInputs
+      .sort((a, b) => b.balance - a.balance).slice(0, this.romeo.guard.getMaxInputs())
+      .reduce((t, i) => t + i.balance, 0) >= totalValue;
+  }
+
+  hasSufficientFunds () {
+    const { transfers, donation, inputs, autoInput } = this.state;
+    const totalValue =
+      donation.value + transfers.reduce((s, t) => s + t.value, 0);
+    const unspentInputs = inputs.filter(i => !i.spent && (autoInput || i.selected));
+    return unspentInputs.reduce((t, i) => t + i.balance, 0) >= totalValue;
+  }
+
   renderTotalStep0() {
     const { page: { page: { balance: pageBalance } } } = this.props;
-    const { transfers, donation, inputs } = this.state;
+    const { transfers, donation } = this.state;
     const totalValue =
       donation.value + transfers.reduce((s, t) => s + t.value, 0);
     const formattedValue = formatIOTAAmount(totalValue).short;
     const enoughBalance = totalValue <= pageBalance;
     const color = totalValue >= 0 && enoughBalance ? 'green' : 'red';
     const nextStep = totalValue > 0 ? 1 : 2;
-    const sufficient =
-      inputs.filter(i => !i.spent).reduce((t, i) => t + i.balance, 0) >=
-      totalValue;
 
     const canProceed = enoughBalance && this.canGoToStep1();
 
@@ -414,7 +438,7 @@ class Transfer extends React.Component {
                 this.setState({
                   currentStep: nextStep,
                   maxStep: nextStep,
-                  forceInput: !sufficient
+                  forceInput: !this.hasSufficientFunds() || !this.hasEnoughInputs()
                 })
               }
             >
@@ -598,6 +622,27 @@ class Transfer extends React.Component {
               <span>
                 Since the total value of your transactions is zero, no input
                 addresses are necessary.
+              </span>
+            }
+          />
+        </Grid.Column>
+      </Grid.Row>
+    );
+  }
+
+  renderTooManyInputs1() {
+    return (
+      <Grid.Row>
+        <Grid.Column computer={12} tablet={16} mobile={16}>
+          <Message
+            error
+            icon="at"
+            header={`Your login method only support a maximum of ${this.romeo.guard.getMaxInputs()} input addresses!`}
+            content={
+              <span>
+                You would need more inputs to make this transaction, which is currently not supported by your login
+                method. As a workaround, you can try transferring all the needed funds from your smaller addresses
+                to a single one and making the transfer from that address afterwards.
               </span>
             }
           />
