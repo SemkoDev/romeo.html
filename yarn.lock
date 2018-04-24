@@ -2802,7 +2802,7 @@ https-browserify@^1.0.0:
 
 "hw-app-iota@git+https://github.com/IOTA-Ledger/hw-app-iota.js.git":
   version "0.1.1"
-  resolved "git+https://github.com/IOTA-Ledger/hw-app-iota.js.git#05fc9ce3b07934533115a3c45da1fde3a5cfe6e1"
+  resolved "git+https://github.com/IOTA-Ledger/hw-app-iota.js.git#b098f0356c36fcf687c9d39b2560c4a4d77e270f"
   dependencies:
     struct "0.0.12"
 
@@ -5366,7 +5366,7 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
 
 "romeo.lib@https://github.com/IOTA-Ledger/romeo.lib.git#feature/ledger-support":
   version "0.1.5"
-  resolved "https://github.com/IOTA-Ledger/romeo.lib.git#2f93326d623eaaad8ba6e799a6eeb3b396929a9a"
+  resolved "https://github.com/IOTA-Ledger/romeo.lib.git#aceefa7a5ec8b316599e94af78ad1543f25cca3f"
   dependencies:
     "@ledgerhq/hw-transport-u2f" "^4.7.3"
     async "^2.6.0"
