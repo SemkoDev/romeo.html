@@ -721,6 +721,7 @@ class Transfer extends React.Component {
         this.pageObject.sync(true, 7000);
       })
       .catch(error => {
+        console.error('transfer error', error);
         this.setState({ sending: false });
         history.push(`/page/${this.pageObject.opts.index + 1}`);
         showInfo(
