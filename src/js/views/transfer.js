@@ -727,9 +727,9 @@ class Transfer extends React.Component {
         showInfo(
           <span>
             <Icon name="close" />&nbsp;
-            {(error && error.message) || 'Failed sending the transfers!'}
+            {((error && error.message) || 'Failed sending the transfers!') + "\n" + 'Please deny the transaction on Ledger (if any) and try again.'}
           </span>,
-          3000,
+          false,
           'error'
         );
       });
