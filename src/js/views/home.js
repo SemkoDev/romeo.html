@@ -96,6 +96,25 @@ class Home extends React.Component {
     const { showMenu, showMobileMenu, backingUp } = this.state;
     const { pages } = this.props;
     const romeo = get();
+    const checksum = romeo.guard.getChecksum();
+    const checksumItem = checksum && (
+      <Popup
+        position="bottom center"
+        trigger={
+          <Menu.Item>
+            <Header as="h3" color="violet">
+              {checksum}
+            </Header>
+          </Menu.Item>
+        }
+        content={
+          <span>
+                Next time you login this checksum should match! &nbsp;
+            <strong>Remember it!</strong>
+              </span>
+        }
+      />
+    );
     const pageMenuItem = () => (
       <Menu.Item onClick={this.toggleMenu}>
         <Icon
@@ -142,22 +161,7 @@ class Home extends React.Component {
           )}
         />
         <Responsive as={Menu.Menu} minWidth={880} position="right">
-          <Popup
-            position="bottom center"
-            trigger={
-              <Menu.Item>
-                <Header as="h3" color="violet">
-                  {romeo.keys.checksum}
-                </Header>
-              </Menu.Item>
-            }
-            content={
-              <span>
-                Next time you login this checksum should match! &nbsp;
-                <strong>Remember it!</strong>
-              </span>
-            }
-          />
+          {checksumItem}
           <Popup
             position="bottom center"
             trigger={

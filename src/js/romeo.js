@@ -4,19 +4,14 @@ import { toast } from 'react-toastify';
 let romeoInstance = null;
 
 export async function login(
-  username,
-  password,
+  guard,
   onChange,
   restoreString = null
 ) {
   if (romeoInstance) {
     await romeoInstance.terminate();
   }
-  romeoInstance = new romeo.Romeo({
-    username,
-    password,
-    onChange
-  });
+  romeoInstance = new romeo.Romeo({ guard, onChange });
   return await romeoInstance.init(restoreString);
 }
 

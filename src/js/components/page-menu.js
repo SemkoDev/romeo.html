@@ -9,6 +9,13 @@ class PageMenu extends React.Component {
   render() {
     const { pages, match: { params }, onClick, history } = this.props;
     const currentIndex = parseInt((params && params.page) || 0) - 1;
+    const guard = get().guard;
+    const checksum = guard.getChecksum() && (
+      <span>(checksum:{' '}
+        <strong>{guard.getChecksum()}</strong>){' '}
+      </span>
+    );
+
     const pageNotification =
       pages.length < 2 ? (
         <Header as="h4" icon color="grey" style={{ padding: 10 }}>
@@ -17,8 +24,7 @@ class PageMenu extends React.Component {
           <Header.Subheader>
             <p>
               As you add new pages, they will appear here. Missing some pages?
-              First, make sure your login details (checksum:{' '}
-              <strong>{get().keys.checksum}</strong>) are correct. If there was
+              First, make sure your login details {checksum}are correct. If there was
               a snapshot, use your backup on login. If you did not create a
               backup, use the manual restoration tool:
             </p>
