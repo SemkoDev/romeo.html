@@ -1,0 +1,28 @@
+.ui.top.attached.menu.mainMenu,
+.ui.bottom.attached.menu.bottomMenu {
+  border-radius: 0;
+}
+
+.ui.top.attached.menu.mainMenu {
+  height: 61px;
+  min-height: 61px;
+}
+
+.ui.bottom.attached.menu.bottomMenu {
+  height: 40px;
+  min-height: 40px;
+}
+
+.pusher {
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+}
+
+.ui.segment.mainContent {
+  display: block;
+  flex-grow: 1;
+  flex-shrink: 1;
+  overflow-y: auto;
+  margin: 0;
+}
